@@ -268,43 +268,70 @@ CQRSパターンとイベント・ソーシングは、大規模な分散シス�
 旅の前に、最終目的地と経路について、概要を把握しておく必要があります。
 そのために、参照実装では適切なドメインを選択しなければいけません。
 
-We engaged with the community and our advisory board to help us choose a 
-domain that would enable us to highlight as many of the features and 
-concepts of CQRS as possible. To help us select between our candidate 
-domains, we used the criteria in the following list. The domain selected 
-should be: 
+> We engaged with the community and our advisory board to help us choose a 
+> domain that would enable us to highlight as many of the features and 
+> concepts of CQRS as possible. To help us select between our candidate 
+> domains, we used the criteria in the following list. The domain selected 
+> should be: 
 
-* **Non-trivial.** The domain must be complex enough to exhibit real 
-problems, but at the same time simple enough for most people to 
-understand without weeks of study. The problems should involve dealing 
-with temporal data, stale data, receiving out-of-order events, and 
-versioning. The domain should enable us to illustrate solutions using 
-event sourcing, sagas, and event merging. 
+執筆にあたって、CQRSの特徴やコンセプトをできるだけ多く取り上げることができるようなドメインを選ぶために、
+コミュニティや諮問委員会の協力を得ました。
+その結果、以下の基準を用いてドメインを選択することにしました。
+参照実装のドメインは以下のような特徴を持ちます。
 
-* **Collaborative.** The domain must contain collaborative elements where 
-multiple actors can operate simultaneously on shared data. 
+> * **Non-trivial.** The domain must be complex enough to exhibit real 
+> problems, but at the same time simple enough for most people to 
+> understand without weeks of study. The problems should involve dealing 
+> with temporal data, stale data, receiving out-of-order events, and 
+> versioning. The domain should enable us to illustrate solutions using 
+> event sourcing, sagas, and event merging. 
 
-* **End to end.** We wanted to be able illustrate the concepts and 
-patterns in action from the back-end data store through to the user 
-interface. This might include disconnected mobile and smart 
-clients. 
+* **自明ではないこと** ドメインは、実際の問題を示すのに十分な程度複雑であると同時に、
+ほとんどの人が何週間も勉強しなくても理解できる程度に単純である必要があります。
+ドメインは、時系列データ、データの陳腐化、順序に反したイベントの受信、バージョニングへの対応といった問題を含むようにします。
+ドメインを通じて、イベントソーシング、サーガ、イベントマージを使ったソリューションを説明できなければいけません。
 
-* **Cloud friendly.** We wanted to have the option of hosting parts of the 
-RI on Windows Azure and be able to illustrate how you can use CQRS for 
-cloud-hosted applications. 
+> * **Collaborative.** The domain must contain collaborative elements where 
+> multiple actors can operate simultaneously on shared data. 
 
-* **Large.** We wanted to be able to show how our domain can be broken 
-down into multiple bounded contexts to highlight when to use and when 
-not use CQRS. We also wanted to illustrate how multiple architectural 
-approaches (CQRS, CQRS/ES, and CRUD) and legacy systems can co-exist 
-within the same domain. We also wanted to show how multiple 
-development teams could carry out work in parallel. 
+* **コラボレーション** ドメインは複数のアクターが共有データを同時に操作するようなコラボレーション要素を持ちます。
 
-* **Easily deployable.** The RI needed to be easily deployable so that you 
-can install it and experiment with it as you read this guidance. 
+> * **End to end.** We wanted to be able illustrate the concepts and 
+> patterns in action from the back-end data store through to the user 
+> interface. This might include disconnected mobile and smart 
+> clients. 
 
-As a result, we chose to implement the conference management system that 
-Chapter 1, "[The Contoso Conference Management System][j_chapter1]" introduces. 
+* **エンド・ツー・エンド** バックエンドのデータストアからユーザーインターフェースに至るまで、
+コンセプトやパターンの動作を説明できるようにします。これには、切断されたモバイルやスマートクライアントも含みます。
+
+
+> * **Cloud friendly.** We wanted to have the option of hosting parts of the 
+> RI on Windows Azure and be able to illustrate how you can use CQRS for 
+> cloud-hosted applications. 
+
+* **クラウド・フレンドリー** Windows Azure上で参照実装の一部をホスティングするオプションを持ち、クラウド・ホスティングされたアプリケーションにCQRSを使用する方法を説明できるようにしました。
+
+> * **Large.** We wanted to be able to show how our domain can be broken 
+> down into multiple bounded contexts to highlight when to use and when 
+> not use CQRS. We also wanted to illustrate how multiple architectural 
+> approaches (CQRS, CQRS/ES, and CRUD) and legacy systems can co-exist 
+> within the same domain. We also wanted to show how multiple 
+> development teams could carry out work in parallel. 
+
+* **十分な規模** 私たちは、CQRSを採用する場合そうではない場合を比較するため、
+ドメインを複数の境界付けられたコンテキストに分解できる例となるようにしました。
+また、複数のアーキテクチャアプローチ（CQRS、CQRS/ES、CRUD）やレガシーシステムが、
+同じドメイン内で共存する方法を示せるようにしました。また、複数の開発チームが並行して作業を進める方法も紹介します。
+
+> * **Easily deployable.** The RI needed to be easily deployable so that you 
+> can install it and experiment with it as you read this guidance. 
+
+* **容易なデプロイ** ガイドを読みながら参照実装をインストールして試せるように、参照実装は簡単にデプロイできなければいけません。
+
+> As a result, we chose to implement the conference management system that 
+> Chapter 1, "[The Contoso Conference Management System][j_chapter1]" introduces. 
+
+最終的に、本著では第1章の[コンソロ会議システム][j_chapter1]で紹介するカンファレンスの管理システムを採用しました。
 
 [fig1]:           images/Map.png?raw=true
 [cqrsemail]:      mailto:cqrsjourney@microsoft.com
