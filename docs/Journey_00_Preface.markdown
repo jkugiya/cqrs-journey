@@ -332,7 +332,7 @@ CQRSパターンとイベント・ソーシングは、大規模な分散シス�
 > As a result, we chose to implement the conference management system that 
 > Chapter 1, "[The Contoso Conference Management System][j_chapter1]" introduces. 
 
-最終的に、本著では第1章の[コンソロ会議システム][j_chapter1]で紹介するカンファレンスの管理システムを採用しました。
+最終的に、本著では第1章の[コントソ会議システム][j_chapter1]で紹介するカンファレンスの管理システムを採用しました。
 
 [fig1]:           images/Map.png?raw=true
 [cqrsemail]:      mailto:cqrsjourney@microsoft.com

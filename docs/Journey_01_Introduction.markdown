@@ -1,48 +1,76 @@
 ### This version of this chapter was part of our working repository during the project. The final version of this chapter is now available on MSDN at [http://aka.ms/cqrs](http://aka.ms/cqrs).
 
-# Chapter 1: Our Domain: The Contoso Conference Management System 
+> # Chapter 1: Our Domain: The Contoso Conference Management System 
 
-_The starting point: Where have we come from, what are we taking, and who is coming with us?_
+# 第1章: コントソ会議システム
+
+> _The starting point: Where have we come from, what are we taking, and who is coming with us?_
+
+_出発点: 我々はどこからきて、何を持ち、誰と共に行くのか？_
 
 > "Without stones there is no arch," Marco Polo
 
-This chapter introduces a fictitious company named Contoso. It describes 
-Contoso's plans to launch the Contoso Conference Management System, a 
-new online service that will enable other companies or individuals to 
-organize and manage their own conferences and events. This chapter 
-describes, at a high-level, some of the functional and non-functional 
-requirements of the new system, and why Contoso wants to implement parts 
-of it using the Command Query Responsibility Segregation (CQRS) pattern and event sourcing (ES). As with any 
-company considering this process, there are many issues to consider and 
-challenges to be met, particularly because this is the first time 
-Contoso has used both the CQRS pattern and event sourcing. The chapters 
-that follow show, step by step, how Contoso designed and 
-built its conference management application. 
+> "石がなければアーチを作ることはできません" Marco Polo
 
-This chapter also introduces a panel of fictional experts to comment 
-on the development efforts. 
+> This chapter introduces a fictitious company named Contoso. It describes 
+> Contoso's plans to launch the Contoso Conference Management System, a 
+> new online service that will enable other companies or individuals to 
+> organize and manage their own conferences and events. This chapter 
+> describes, at a high-level, some of the functional and non-functional 
+> requirements of the new system, and why Contoso wants to implement parts 
+> of it using the Command Query Responsibility Segregation (CQRS) pattern and event sourcing (ES). As with any 
+> company considering this process, there are many issues to consider and 
+> challenges to be met, particularly because this is the first time 
+> Contoso has used both the CQRS pattern and event sourcing. The chapters 
+> that follow show, step by step, how Contoso designed and 
+> built its conference management application. 
 
-# The Contoso Corporation 
+本章では、コントソ社という架空の企業と、コントソ社が計画しているコントソ会議システムについて説明します。
+コントソ会議システムは、企業や個人が自分のカンファレンスやイベントを企画、管理するための新しいオンラインサービスです。
+本章では、新システムの機能要求・非機能要求と、その一部を CQRS（コマンド・クエリ責務分離）パターンとES（Event Sourcing）を用いて実装する理由について、大まかに説明します。
+こういったプロセスを検討している様々な企業と同様に、このプロジェクトには検討すべき課題が数多くあり、
+特にコントソ社はCQRSパターンとイベントソーシング使用するのが両方とも初めてなので課題が沢山ありした。
+この後の章では、コントソ社が会議管理アプリケーションを設計・構築した方法を順を追って説明します。
 
-Contoso is a startup ISV company of approximately 20 employees that 
-specializes in developing solutions using Microsoft technologies. 
-The developers at Contoso are knowledgeable about various Microsoft 
-products and technologies, including the .NET Framework, ASP.NET MVC, 
-and Windows Azure. Some of the developers have previous experience
-using the domain-driven design (DDD) approach, but none of them have 
-used the CQRS pattern previously. 
+> This chapter also introduces a panel of fictional experts to comment on the development efforts. 
 
-The Conference Management System application is one of the first 
-innovative online services that Contoso wants to take to market. As a 
-startup, Contoso wants to develop and launch these services with a 
-minimal investment in hardware and IT personnel. Contoso wants to be 
-quick to market in order to start growing market share, and cannot 
-afford the time to implement all of the planned functionality in the 
-first releases. Therefore, it is important that the architecture it 
-adopts can easily accommodate changes and enhancements with minimal 
-impact on existing users of the system. Contoso has chosen to deploy the 
-application on Windows Azure in order to take advantage of its ability 
-to scale applications as demand grows. 
+また、本章では、開発の取り組みについてコメントをした架空の専門家パネルを紹介します。
+
+> # The Contoso Corporation 
+
+# コントソ社
+
+> Contoso is a startup ISV company of approximately 20 employees that 
+> specializes in developing solutions using Microsoft technologies. 
+> The developers at Contoso are knowledgeable about various Microsoft 
+> products and technologies, including the .NET Framework, ASP.NET MVC, 
+> and Windows Azure. Some of the developers have previous experience
+> using the domain-driven design (DDD) approach, but none of them have 
+> used the CQRS pattern previously. 
+
+コントソ社は、従業員約20名のスタートアップ独立系ソフトウェアベンダで、
+マイクロソフトの技術を使ったソリューションの開発を専門としています。
+コンソト社の開発者は、.NET Framework、ASP.NET MVC、Windows Azureなど、 さまざまなMicrosoftの製品や技術に精通しています。
+開発者の中には、ドメイン駆動設計（DDD）の経験者はいますが、CQRSの経験者はいません。
+
+> The Conference Management System application is one of the first 
+> innovative online services that Contoso wants to take to market. As a 
+> startup, Contoso wants to develop and launch these services with a 
+> minimal investment in hardware and IT personnel. Contoso wants to be 
+> quick to market in order to start growing market share, and cannot 
+> afford the time to implement all of the planned functionality in the 
+> first releases. Therefore, it is important that the architecture it 
+> adopts can easily accommodate changes and enhancements with minimal 
+> impact on existing users of the system. Contoso has chosen to deploy the 
+> application on Windows Azure in order to take advantage of its ability 
+> to scale applications as demand grows. 
+
+会議システムは、コントソ社がこれから売り出そうとしている最初の革新的なオンラインサービスの一つです。
+新興企業であるコントソ社は、ハードウェアやIT人材への投資を最小限に抑えながら、このサービスの開発・提供を行いたいと考えています。
+コントソ社はいち早く製品を市場に投入することでマーケットシェアを拡大したいと考えているので、 
+最初のリリースで予定されているすべての機能を実装する時間的余裕はありません。
+したがって、最初のリリース後に既存のシステムユーザーへの影響を最小限に抑えつつ、変更や機能拡張を容易に行えるアーキテクチャを採用することが重要です。
+コントソ社は、需要の増加に応じてアプリケーションをスケールできるように、Windows Azure上にアプリケーションをデプロイすることにしました。
 
 # Who is coming with us on the journey? 
 
