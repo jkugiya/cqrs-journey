@@ -72,13 +72,19 @@ _出発点: 我々はどこからきて、何を持ち、誰と共に行くの�
 したがって、最初のリリース後に既存のシステムユーザーへの影響を最小限に抑えつつ、変更や機能拡張を容易に行えるアーキテクチャを採用することが重要です。
 コントソ社は、需要の増加に応じてアプリケーションをスケールできるように、Windows Azure上にアプリケーションをデプロイすることにしました。
 
-# Who is coming with us on the journey? 
+> # Who is coming with us on the journey? 
 
-As mentioned earlier, this guide and the accompanying RI describe a CQRS 
-journey. A panel of experts will comment on our development efforts as we go. 
-This panel includes a CQRS expert, a software architect, a developer, a 
-domain expert, an IT Pro, and a business manager. They will all comment 
-from their own perspectives. 
+# 旅の供
+
+> As mentioned earlier, this guide and the accompanying RI describe a CQRS 
+> journey. A panel of experts will comment on our development efforts as we go. 
+> This panel includes a CQRS expert, a software architect, a developer, a 
+> domain expert, an IT Pro, and a business manager. They will all comment 
+> from their own perspectives. 
+
+先ほども述べたように、このガイドと付属の参照実装は、CQRSを巡る旅の物語です。
+物語の中で専門家の講師が、私たちの開発の取り組みについてコメントしてくれます。
+講師たちは、CQRSエキスパート、ソフトウェアアーキテクト、開発者、ドメインエキスパート、ITプロ、ビジネスマネージャーといった人々で、それぞれが独自の視点からコメントします。
 
 <table border="1">
 <tr>
@@ -86,6 +92,7 @@ from their own perspectives.
     <img src="images/PersonaGary.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Gary is a CQRS expert. He ensures that a CQRS-based solution will work 
 for a company and will provide tangible benefits. He is a cautious 
 person, for good reason.<br/>
@@ -93,6 +100,11 @@ person, for good reason.<br/>
 <i>"Defining the CQRS pattern is easy. Realizing the benefits that
 implementing the CQRS pattern can offer is not always so
 straightforward."</i>
+</blockquote>
+GaryはCQRSのエキスパートで、CQRSに基づいた企業にとって有効なソリューションを提案し、具体的な利益をもたらすことを保証します。彼は訳があって慎重な人です。<br/>
+
+<i>"CQRSパターンの定義そのものは簡単です。しかし、CQRSパターンを導入することで得られるメリットを享受するのは、必ずしもそれほど簡単ではありません。"</i>
+
 </td>
 </tr>
 
@@ -101,6 +113,7 @@ straightforward."</i>
     <img src="images/PersonaJana.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Jana is a software architect. She plans the overall structure of an 
 application. Her perspective is both practical and strategic. In other 
 words, she considers not only what technical approaches are needed 
@@ -110,6 +123,12 @@ approach.<br/>
 
 <i>"It's not easy to balance the needs of the company, the users, the IT
 organization, the developers, and the technical platforms we rely on."</i>
+</blockquote>
+Janaはソフトウェアアーキテクトで、アプリケーションの全体的な構造を設計します。
+彼女の視点は実用的かつ戦略的で、今必要な技術的なアプローチだけでなく、企業が向かうべき将来的な方向性も考慮しています。
+Janaは、ドメイン駆動設計を用いたプロジェクトに参加したことがあります。
+
+<i>企業、ユーザー、IT組織、開発者、依存する技術プラットフォームのニーズのバランスを取るのは簡単ではありません。</i>
 </td>
 </tr>
 
@@ -118,13 +137,20 @@ organization, the developers, and the technical platforms we rely on."</i>
     <img src="images/PersonaMarkus.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Markus is a software developer who is new to the CQRS pattern. He is 
 analytical, detail-oriented, and methodical. He's focused on the task at 
 hand, which is building a great application. He knows that he's the 
 person who's ultimately responsible for the code.<br/>
 
-<i>"I don't care what architecture you want to use for the application;
-I'll make it work."</i>
+<i>"I don't care what architecture you want to use for the application; I'll make it work."</i>
+</blockquote>
+Markusはソフトウェア開発者で、CQRSパターンの経験は浅いです。
+彼は分析的で、細部に目が届き、几帳面な性格です。
+彼は、優れたアプリケーションを構築するという、目の前のタスクに集中しています。
+彼は、自分がコードの最終責任者であると自負しています。
+
+<i>どんなアーキテクチャであっても、ちゃんと動くようにして見せます。</i>
 </td>
 </tr>
 
@@ -133,6 +159,7 @@ I'll make it work."</i>
     <img src="images/PersonaCarlos.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Carlos is the domain expert. He understands all the ins and outs of 
 conference management. He has worked in a number of organizations that 
 help people run conferences. He has also worked in a number of 
@@ -142,6 +169,12 @@ consultant.<br/>
 <i>"I want to make sure that the team understands how this business
 works so that we can deliver a world-class online conference 
 management system."</i>
+</blockquote>
+Carlosはドメインエキスパートで会議運営の裏も表も知り尽くしています。
+彼は、いくつかのカンファレンスの運営を支援する組織で働いた経験があります。
+また、営業やマーケティング、会議運営、コンサルタントなど、さまざまな役割を担ってきました。
+
+<i>このビジネスの仕組みをチームに理解してもらい、世界に通用するオンライン会議管理システムを提供することが私の仕事です。</i>
 </td>
 </tr>
 
@@ -150,6 +183,7 @@ management system."</i>
     <img src="images/PersonaPoe.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Poe is an IT professional who's an expert in deploying and running 
 applications in the cloud. Poe has a keen interest in practical 
 solutions; after all, he's the one who gets paged at 3:00 AM when 
@@ -159,6 +193,12 @@ there's a problem.<br/>
 are different than the challenges in managing  on-premises applications.
 I want to make sure our new conference management system meets our
 published service-level agreements (SLA)."</i>
+</blockquote>
+Poeは、クラウド上でアプリケーションをデプロイ・実行することに熟達したITのプロです。
+問題が発生すると午前3時に呼び出されることもあるので、実践的なソリューションに強い関心を持っています。
+
+<i>クラウド上での複雑なアプリケーション運用には、オンプレミスなアプリケーションの管理とは違った課題があります。
+新しい会議管理システムが、宣言したサービスレベルアグリーメント（SLA）を確実に満たせるようにしたいと思います。</i>
 </td>
 </tr>
 
@@ -167,6 +207,7 @@ published service-level agreements (SLA)."</i>
     <img src="images/PersonaBeth.png?raw=true" />
   </td>
 <td>
+<blockquote>
 Beth is a business manager. She helps companies to plan how their 
 business will develop. She understands the market that the company 
 operates in, the resources that the company has available, and the goals 
@@ -177,7 +218,16 @@ day-to-day operations of the company.<br/>
 want to make sure that our company balances those demands and adopts a 
 business plan that will make us successful in the medium and long 
 term."</i>
+</blockquote>
+Bethはビジネスマネージャーで、企業のビジネス展開の計画を手助けします。
+彼女は、企業が活動する市場、企業が利用できるリソース、企業の目標を理解していて、
+戦略的な視点と企業の日常業務への関心の両方を持っています。
+
+<i>組織の資源は限られている一方で相反する要求は数多くあります。
+私は、当社がこれらの要求のバランスをとり、中長期的に成功するようなビジネスプランを採用するようにしたいと考えています。</i>
 </td>
+
+<i>
 </tr>
 </table>
 
