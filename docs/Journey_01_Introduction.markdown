@@ -231,94 +231,163 @@ Bethはビジネスマネージャーで、企業のビジネス展開の計画�
 </tr>
 </table>
 
-If you have a particular area of interest, look for notes provided by 
-the specialists whose interests align with yours. 
+> If you have a particular area of interest, look for notes provided by 
+> the specialists whose interests align with yours. 
 
-# The Contoso Conference Management System 
+自分が特に興味のある領域があれば、その専門家のノートを探してみるとよいでしょう。
 
-This section describes the Contoso Conference Management System as the  
-team envisaged it at the start of the journey. The team has not 
-used the CQRS pattern before; therefore, the system that is delivered at 
-the end of our journey may not match this description exactly because: 
+> # The Contoso Conference Management System 
 
-* What we learn as we go may impact what we ultimately deliver.
-* Because this is a learning journey, it is more difficult to estimate
+# コントソ会議管理システム
+
+> This section describes the Contoso Conference Management System as the  
+> team envisaged it at the start of the journey. The team has not 
+> used the CQRS pattern before; therefore, the system that is delivered at 
+> the end of our journey may not match this description exactly because: 
+
+> * What we learn as we go may impact what we ultimately deliver.
+> * Because this is a learning journey, it is more difficult to estimate
   what we can achieve in the available time.
 
-## Overview of the system
+このセクションでは旅の始まりにチームがコンソト会議管理システムをどのように思い描いていたかを説明します。
+チームはそれまでCQRSに関する知見がなかったため、以下の理由により、
+旅の終わりに納品されるシステムは当初思い描いていたものとは異なるものになります。
 
-Contoso plans to build an online conference management system that will 
-enable its customers to plan and manage conferences that are held 
-at a physical location. The system will enable Contoso's customers to: 
+* 旅を通じて学んでいくことは最終成果物に影響を与えます。
+* この旅は学びの旅なので、限られた時間の中で何を成し遂げられるのかを見積もることはより難しいです。
 
-* Manage the sale of different seat types for the conference.
-* Create a conference and define characteristics of that conference.
+> ## Overview of the system
 
-The Contoso Conference Management System will be a multi-tenant, 
-cloud-hosted application. Business Customers will need to register with 
-the system before they can create and manage their conferences. 
+## システムの概要
 
-### Selling seats for a conference
+> Contoso plans to build an online conference management system that will 
+> enable its customers to plan and manage conferences that are held 
+> at a physical location. The system will enable Contoso's customers to: 
+> 
+> * Manage the sale of different seat types for the conference.
+> * Create a conference and define characteristics of that conference.
 
-The business customer defines the number of seats available for the 
-conference. The business customer may also specify events at a 
-conference such as workshops, receptions, and premium sessions for which 
-attendees must have a separate ticket. The business customer also 
-defines how many seats are available for these events. 
+コンソト社はオフラインで開催される会議を計画・管理するオンライン会議管理システムの構築を計画しています。
+このシステムでコンソト社の顧客が以下のことができるようにします。
 
-The system manages the sale of seats to ensure that the conference and 
-sub-events are not oversubscribed. This part of the system will also 
-operate wait-lists so that if other Attendees cancel, their seats 
-can be reallocated. 
+* カンファレンスの様々な種類の座席の販売を管理する
+* カンファレンスを作成して、その特徴を入力する
 
-The system will require that the names of the Attendees be associated 
-with the purchased seats so that an on-site system can print badges for
-the Attendees when they arrive at the conference. 
+> The Contoso Conference Management System will be a multi-tenant, 
+> cloud-hosted application. Business Customers will need to register with 
+> the system before they can create and manage their conferences. 
 
-### Creating a conference
+コンソト会議管理システムはマルチテナント型のクラウドアプリケーションになります。
+顧客は会議の作成と管理と行うために事前に登録を行う必要があります。
 
-A Business Customer can create new conferences and manage information 
-about the conference such as its name, description, and dates. The 
-Business Customer can also make a conference visible on the Contoso 
-Conference Management System website by publishing it, or hide it by 
-unpublishing it. 
+> ### Selling seats for a conference
 
-Additionally, the Business Customer defines the seat types and available 
-quantity of each seat type for the conference. 
+### カンファレンスの座席販売
 
-Contoso also plans to enable the Business Customer to specify the 
-following characteristics of a conference: 
+> The business customer defines the number of seats available for the 
+> conference. The business customer may also specify events at a 
+> conference such as workshops, receptions, and premium sessions for which 
+> attendees must have a separate ticket. The business customer also 
+> defines how many seats are available for these events. 
 
-* Whether the paper submission process will require reviewers.
-* What the fee structure for paying Contoso will be.
-* Who key personnel, such as the program chair and the event planner,
-  will be.
+顧客は、カンファレンスで利用可能な座席数を指定します。また、ワークショップ、レセプション、
+プレミアムセッションといった参加者が別途チケットを必要とするイベントとそれぞれのイベントで
+利用可能な座席数を指定することができます。
 
-## Nonfunctional requirements
+> The system manages the sale of seats to ensure that the conference and 
+> sub-events are not oversubscribed. This part of the system will also 
+> operate wait-lists so that if other Attendees cancel, their seats 
+> can be reallocated. 
 
-Contoso has two major nonfunctional requirements for its conference
-management system-scalability and flexibility-and it hopes that the CQRS
-pattern will help it meet them. 
+システムは、カンファレンスやサブイベントが定員オーバーにならないように座席の販売を管理します。
+また、他の参加者がキャンセルした場合に、その参加者の席を他の人に再度割り当てられるように、
+キャンセル待ちリストの管理も行います。
 
-### Scalability
+> The system will require that the names of the Attendees be associated 
+> with the purchased seats so that an on-site system can print badges for
+> the Attendees when they arrive at the conference. 
 
-The Conference Management System will be hosted in the cloud; one of 
-the reasons Contoso chose a cloud platform was its scalability and 
-potential for elastic scalability. 
+また、システムは、会議に到着した出席者のバッジを現地で印刷できるように
+出席者が購入した座席と出席者の名前を紐づけておく必要があります。
 
-Although cloud platforms such as Windows Azure enable you to scale 
-applications by adding (or removing) role instances, you must still 
-design your application to be scalable. By splitting responsibility for 
-the application's read and write operations into separate objects, the 
-CQRS pattern allows Contoso to split those operations into separate 
-Windows Azure roles that can scale independently of each other. This 
-recognizes the fact that for many applications, the number of read 
-operations vastly exceeds the number of write operations. This gives 
-Contoso the opportunity to scale the Conference Management System more 
-efficiently, and make better use of the Windows Azure role instances 
-it uses. 
+> ### Creating a conference
 
-### Flexibility
+### 会議の作成
+
+> A Business Customer can create new conferences and manage information 
+> about the conference such as its name, description, and dates. The 
+> Business Customer can also make a conference visible on the Contoso 
+> Conference Management System website by publishing it, or hide it by 
+> unpublishing it. 
+
+顧客は新しいカンファレンスを作成し、カンファレンス名、説明、日付といったカンファレンスの情報を管理できます。また、顧客は、カンファレンスをコンソト会議管理システムのウェブサイト上で公開したり、公開を中止して非表示したりできます。
+
+> Additionally, the Business Customer defines the seat types and available 
+> quantity of each seat type for the conference. 
+
+また、顧客は会議の座席タイプと各座席タイプごとにカンファレンスで利用できる数を指定します。
+
+> Contoso also plans to enable the Business Customer to specify the 
+> following characteristics of a conference: 
+
+> * Whether the paper submission process will require reviewers.
+> * What the fee structure for paying Contoso will be.
+> * Who key personnel, such as the program chair and the event planner,
+>  will be.
+
+コンソト社は、顧客が会議で以下の特性を指定できるようにしたいとも考えています。
+
+* 論文投稿の際に査読者を必要とするかどうか。
+* コンソト社対して支払う料金の体系
+* プログラム委員長やイベント企画者といったキーパーソンの指定
+
+
+
+> ## Nonfunctional requirements
+
+## 非機能要件
+
+> Contoso has two major nonfunctional requirements for its conference
+> management system-scalability and flexibility-and it hopes that the CQRS
+> pattern will help it meet them. 
+
+コンソト社の会議管理システムには2つの主要な非機能要件（スケーラビリティとフレキシビリティ）があり、
+CQRSパターンを採用することでそれらを満たせることを期待しています。
+
+> ### Scalability
+
+### スケーラビリティ
+
+> The Conference Management System will be hosted in the cloud; one of 
+> the reasons Contoso chose a cloud platform was its scalability and 
+> potential for elastic scalability. 
+
+会議管理システムは、クラウドにホストします。コンソト社がクラウド・プラットフォームを選択した理由の一つは、
+そのスケーラビリティとそこから得られるであろう弾力性です。
+
+> Although cloud platforms such as Windows Azure enable you to scale 
+> applications by adding (or removing) role instances, you must still 
+> design your application to be scalable. By splitting responsibility for 
+> the application's read and write operations into separate objects, the 
+> CQRS pattern allows Contoso to split those operations into separate 
+> Windows Azure roles that can scale independently of each other. This 
+> recognizes the fact that for many applications, the number of read 
+> operations vastly exceeds the number of write operations. This gives 
+> Contoso the opportunity to scale the Conference Management System more 
+> efficiently, and make better use of the Windows Azure role instances 
+> it uses. 
+
+Windows Azure などのクラウド・プラットフォームでは、ロール・インスタンスを追加（または削除）することでアプリケーションを拡張することができますが、
+それでもアプリケーションはスケーラビリティを考量した設計を行う必要があります。
+CQRSパターンでは、アプリケーションの読み取り操作と書き込み操作の責任を別々のオブジェクトに分割することで、
+コンソト社がこれらの操作を互いに独立してスケールできる別々のWindows Azureロールに分割できます。
+多くのアプリケーションでは、読み取り操作の数が書き込み操作の数を大幅に上回るという事実が認識されています。
+これにより、コンソト社はコンソト会議管理システムをより効率的にスケールし、使用するWindows Azureロールインスタンスを
+より有効活用することができます。
+
+> ### Flexibility
+
+### 柔軟性
 
 The market that the Contoso Conference Management System operates in is 
 very competitive, and very fast moving. In order to compete, Contoso 
