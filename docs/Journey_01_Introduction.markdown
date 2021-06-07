@@ -387,53 +387,85 @@ CQRSパターンでは、アプリケーションの読み取り操作と書き�
 
 > ### Flexibility
 
-### 柔軟性
+### 適応性
 
-The market that the Contoso Conference Management System operates in is 
-very competitive, and very fast moving. In order to compete, Contoso 
-must be able to quickly and cost effectively adapt the Conference 
-Management System to changes in the market. This requirement for 
-flexibility breaks down into a number of related aspects: 
+> The market that the Contoso Conference Management System operates in is 
+> very competitive, and very fast moving. In order to compete, Contoso 
+> must be able to quickly and cost effectively adapt the Conference 
+> Management System to changes in the market. This requirement for 
+> flexibility breaks down into a number of related aspects: 
 
-* Contoso must be able to evolve the system to meet new requirements 
-  and to respond to changes in the market. 
+コンソト会議管理システムの市場は、競争が激しく変化も激しいです。
+会議管理システムを市場の変化に合わせて迅速かつコスト効率よく適応させなければ、市場で生き残ることはできません。
+この適応性の要求は、いくつかの関連する側面に分かれます。
+
+> * Contoso must be able to evolve the system to meet new requirements 
+>  and to respond to changes in the market. 
+
+- コンソト社は新しい要求を満たしつづけ、市場の変化に対応しながら進化しなければならない
   
 > **BethPersona:** Contoso plans to compete by being quick to respond to
 > changes in the market and to changing customer requirements. Contoso
 > must be able to evolve the system quickly and painlessly.
 
-* The system must be able to run multiple versions of its software 
-  simultaneously in order to support customers who are in the middle of 
-  a conference and who do not wish to upgrade to a new version 
-  immediately. Other customers may wish to migrate their existing 
-  conference data to a new version of the software as it becomes 
-  available.
+> **Bethのペルソナ:** コンソト社は、市場の変化や顧客の要求の変化に素早く対応することで競争に勝つことを計画していいます。
+> コンソト社は、システムを迅速かつ容易に発展させることができなければいけません。
+
+> * The system must be able to run multiple versions of its software 
+>   simultaneously in order to support customers who are in the middle of 
+>   a conference and who do not wish to upgrade to a new version 
+>   immediately. Other customers may wish to migrate their existing 
+>   conference data to a new version of the software as it becomes 
+>   available.
+
+* 会議を行っている途中でにすぐに新バージョンにアップグレードしたくない顧客をサポートするため、
+  複数のバージョンのソフトウェアを同時に実行できる必要があります。
+  また、既存の会議データを新しいバージョンのソフトウェアに移行したいという顧客もいるかもしれません。
+
+ 
   
 > **PoePersona:** This is a big challenge: keeping the system running
 > for all our customers while we perform upgrades with no down time.
 
-* Contoso intends the software to last for at least five years. It 
-  must be able to accommodate significant changes over that period. 
+> **Poeのペルソナ:** 中々難しいですね。ダウンタイムなしでアップグレードを行いながらも、すべての顧客がシステムを利用できなければいけないのですから。
+> 
 
-* Contoso does not want the complexity of some parts of the system to 
-  become a barrier to change. 
+> * Contoso intends the software to last for at least five years. It 
+>   must be able to accommodate significant changes over that period. 
 
-* Contoso would like to be able to use different developers for 
-  different elements of the system, using cheaper developers for simpler 
-  tasks and restricting its use of more expensive and experienced 
-  developers to the more critical aspects of the system. 
+* コンソト社は少なくとも5年間はシステムを稼働させようと考えています。この間の大きな変更に対応できる必要があります。
+
+> * Contoso does not want the complexity of some parts of the system to 
+>   become a barrier to change. 
+
+* コンソト社は、システムの一部が複雑であることが変革の障壁にならないようにしたいと考えています。
+
+> * Contoso would like to be able to use different developers for 
+>   different elements of the system, using cheaper developers for simpler 
+>   tasks and restricting its use of more expensive and experienced 
+>   developers to the more critical aspects of the system. 
+
+* コンソト社は、システムの要素ごとに開発者を使い分けることができるようにしたいと考えています。
+  単価の低い開発者は単純作業を行い、経験豊富な開発者がシステムの重要な部分を開発できるようにしたいと思っています。
 
 > **GaryPersona:** There is some debate in the CQRS community 
 > about whether, in practice, you can use different development teams 
 > for different parts of the CQRS pattern implementation. 
 
-# Beginning the journey
+> **Garyのペルソナ:** CQRSコミュニティには、CQRSパターンの実装の異なるパーツごとに異なる開発チームが開発を行うのが実用的かどうかという議論があります。
 
-The next chapter is the start of our CQRS journey. It provides more 
-information about the Contoso Conference Management System and describes 
-some of the high-level parts of the system. Subsequent chapters describe 
-the stages of the journey as Contoso implements the Conference Management 
-System. 
+> # Beginning the journey
+
+# 旅の始まり
+
+> The next chapter is the start of our CQRS journey. It provides more 
+> information about the Contoso Conference Management System and describes 
+> some of the high-level parts of the system. Subsequent chapters describe 
+> the stages of the journey as Contoso implements the Conference Management 
+> System. 
+
+次章は、CQRSを巡る旅の始まりです。この章では、コンソト会議管理システムの詳細と、システムの高レベルな部品について説明します。
+以降の章では、コンソト社が会議管理システムを導入する際の旅の各ステージについて述べていきます。
 
 [personagary]:    images/PersonaGary.png?raw=true
 [personajana]:    images/PersonaJana.png?raw=true
