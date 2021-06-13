@@ -1,32 +1,51 @@
 ### This version of this chapter was part of our working repository during the project. The final version of this chapter is now available on MSDN at [http://aka.ms/cqrs](http://aka.ms/cqrs).
 
-# Chapter 3: Orders and Registrations Bounded Context 
+> # Chapter 3: Orders and Registrations Bounded Context 
 
-_The first stop on our CQRS journey._
+# 第3章: 注文と登録のコンテキスト
+
+> _The first stop on our CQRS journey._
+
+_CQRSを巡る旅の第一歩_
 
 > "The Allegator is the same, as the Crocodile, and differs only in Name," John Lawson
 
-# A description of the bounded context
+> "アリゲーターとクロコダイルは名前が違うだけです。" John, Lawson
 
-The orders and registrations bounded context is partially responsible 
-for the booking process for attendees planning to come to a conference. 
-In the orders and registrations bounded context, a person (the 
-registrant) purchases seats at a particular conference. The registrant 
-also assigns names of attendees to the purchased seats (this is 
-described in chapter 5, [Preparing for the V1 Release][j_chapter5]). 
+> # A description of the bounded context
 
-This was the first stop on our CQRS journey, so the team decided to 
-implement a core, but self-contained part of the system &mdash; orders and 
-registrations. The registration process must be as painless as possible 
-for attendees. The process must enable the business customer to ensure 
-that the maximum possible number of seats can be booked, and give them 
-the flexibility set the prices for the different seat types at a 
-conference. 
+# 境界付けられたコンテキスト
 
-Because this was the first bounded context addressed by the team, we 
-also implemented some infrastructure elements of the system to support 
-the domain's functionality. These included command and event message 
-buses and a persistence mechanism for aggregates. 
+> The orders and registrations bounded context is partially responsible 
+> for the booking process for attendees planning to come to a conference. 
+> In the orders and registrations bounded context, a person (the 
+> registrant) purchases seats at a particular conference. The registrant 
+> also assigns names of attendees to the purchased seats (this is 
+> described in chapter 5, [Preparing for the V1 Release][j_chapter5]). 
+
+注文と登録のコンテキストは、カンファレンスへの参加を予定している参加者の予約プロセスに関する責務を部分的に負います。
+注文と登録のコンテキストでは、登録者がカンファレンスの座席を購入します。
+登録者はまた、購入した席に割り当てる出席者の名前を指定します（これについては、第5章の[V1リリースに向けて][j_chapter5]で説明します）。
+
+> This was the first stop on our CQRS journey, so the team decided to 
+> implement a core, but self-contained part of the system &mdash; orders and 
+> registrations. The registration process must be as painless as possible 
+> for attendees. The process must enable the business customer to ensure 
+> that the maximum possible number of seats can be booked, and give them 
+> the flexibility set the prices for the different seat types at a 
+> conference. 
+
+CQRSを巡る旅の第一歩は、チームがシステムの中核でありながら自己完結的なプロセスの「注文と登録」を実装することです。
+登録プロセスは、参加者にとってできる限り負担のないものでなければなりません。
+
+> Because this was the first bounded context addressed by the team, we 
+> also implemented some infrastructure elements of the system to support 
+> the domain's functionality. These included command and event message 
+> buses and a persistence mechanism for aggregates. 
+
+これはチームが初めて取り組んだ境界付けられたコンテキストなので、
+このドメインの機能をサポートするためにシステムのインフラ要素も実装しました。
+この中には、コマンドやイベントのメッセージバス、集約の永続化メカニズムなどがあります。
 
 > **Note:** The Contoso Conference Management System described in this
 > chapter is not the final version of the system. This guidance
@@ -34,10 +53,16 @@ buses and a persistence mechanism for aggregates.
 > implementation details change later in the journey. These
 > changes are described in subsequent chapters.
 
-Plans for enhancements to this bounded context in some future journey 
-include support for wait listing, whereby requests for seats are placed 
-on a wait list if there aren't sufficient seats available, and enabling 
-the business customer to set various types of discounts for seat types. 
+> **注:** 本章のコンソト会議管理システムは、最終バージョンではありません。
+> このガイダンスは旅の途中なので、中には設計上の決定事項や実装の詳細が旅の後半で変更されるものもあります。 
+> 後続の章ではこれらの変更について述べます。
+
+> Plans for enhancements to this bounded context in some future journey 
+> include support for wait listing, whereby requests for seats are placed 
+> on a wait list if there aren't sufficient seats available, and enabling 
+> the business customer to set various types of discounts for seat types. 
+
+この境界付けられたコンテキストでは、旅の中で予約待ちリストのサポートを機能追加することも計画しています。 この機能は、十分な座席がない場合に座席のリクエストを予約待ちリストに追加し、 顧客は座席タイプにさまざまな種類の割引を設定できます。 
 
 > **Note:** Wait listing is not implemented in this release, but members
 > of the community are working on this and other features. Any
