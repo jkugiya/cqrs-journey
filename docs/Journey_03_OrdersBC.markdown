@@ -69,19 +69,31 @@ CQRSを巡る旅の第一歩は、チームがシステムの中核でありな�
 > out-of-band releases and updates will be announced on the [Project "A
 > CQRS Journey"][cqrsjourneysite] website.
 
-# Working definitions for this chapter
+> **注記:** このリリースでは予約待ちリストを実装していませんが、コミュニティのメンバーはこの機能や他の機能にも取り組んでいます。
+> 本著にはないリリースやアップデートは、[CQRSを巡る旅][cqrsjourneysite]のウェブサイトで発表します。
 
-This chapter uses a number of terms that we will define in a moment. For 
-more detail, and possible alternative definitions, see [A CQRS/ES Deep 
-Dive][r_chapter4] in the Reference Guide. 
+> # Working definitions for this chapter
 
-**Command.** A _command_ is a request for the system to perform an action that changes the state of the system. Commands are imperatives; **MakeSeatReservation** is one example. In this bounded context, commands originate either from the UI as a result of a user initiating a request, or from a process manager when the process manager is directing an aggregate to perform an action.
+# この章における一時的定義
+
+> This chapter uses a number of terms that we will define in a moment. For 
+> more detail, and possible alternative definitions, see [A CQRS/ES Deep 
+> Dive][r_chapter4] in the Reference Guide. 
+
+本章では、いくつか一時的な用語の定義を行います。詳細や別の代替案については、リファレンスガイドの[CQRSとESの深堀り][r_chapter4]を参照してください。
+
+> **Command.** A _command_ is a request for the system to perform an action that changes the state of the system. Commands are imperatives; **MakeSeatReservation** is one example. In this bounded context, commands originate either from the UI as a result of a user initiating a request, or from a process manager when the process manager is directing an aggregate to perform an action.
+
+**コマンド** _コマンド_ は、システムの状態を変化させる操作の実行を依頼するシステムへの要求です。コマンドの名称は命令形で、例えば**MakeSeatReservation**といった形をとります。この境界付けられたコンテキストでコマンドが発生するのは、UIからユーザーがリクエストを開始した結果としてUIから発生こともあれば、プロセスマネージャーからプロセスマネージャーが集約に操作を実行するよう指示するときに発生することもあります。
 
 A single recipient processes a command. A command bus transports commands that command handlers then dispatch to aggregates. Sending a command is an asynchronous operation with no return value.
 
-> **GaryPersona:** For a discussion of some possible optimizations
-> that also involve a slightly different definition of a command, see
-> Chapter 6, [Versioning our System][j_chapter6].
+コマンドを受信するプロセスは1つだけです。コマンドバスがコマンドハンドラーからのコマンドの運び手となり、集約まで伝播します。コマンドの送信は戻り値を持たない非同期操作です。
+
+> **GaryPersona:** For a discussion of some possible optimizations that also involve a slightly different definition of a command, see Chapter 6, [Versioning our System][j_chapter6].
+
+> **Garyのペルソナ:** コマンドの捉え方を少々変えることで、少し異なった最適化を行うこともできますが、詳細は第6章の[システムのバージョン管理][j_chapter6]を参照してください。
+
 
 **Event.** An _event_, such as **OrderConfirmed**, describes something that has happened in the system, typically as a result of a command. Aggregates in the domain model raise events.
 
