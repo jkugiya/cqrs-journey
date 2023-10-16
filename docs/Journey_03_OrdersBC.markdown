@@ -133,49 +133,136 @@ Our process manager is an implementation of the Process Manager pattern defined 
 
 このリファレンスガイドではCQRS関連用語に関する定義をさらに付け加えていきます。
 
-# Domain definitions (ubiquitous language)
 
-The following list defines the key domain-related terms that the team used during the development of this Orders and Registrations bounded contexts.
+> # Domain definitions (ubiquitous language)
 
-**Attendee.** An attendee is someone who is entitled to attend a conference. An Attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference. An attendee could also be a person who doesn't pay to attend a conference such as a volunteer, speaker, or someone with a 100% discount. An attendee may have multiple associated attendee types (speaker, student, volunteer, track chair, etc.)
+# ドメイン定義 (普遍的な言語)
 
-**Registrant.** A registrant is a person who interacts with the system to place orders and to make payments for those orders. A registrant also creates the registrations associated with an order. A registrant may also be an attendee.
+> The following list defines the key domain-related terms that the team used during the development of this Orders and Registrations bounded contexts.
 
-**User.** A user is a person such as an attendee, registrant, speaker, or volunteer who is associated with a conference. Each user has a unique record locator code that the user can use to access user-specific information in the system. For example, a registrant can use a record locator code to access her orders, and an attendee can use a record locator code to access his personalized conference agenda.
+以下のリストは、この「注文と登録」の境界づけられたコンテキストの開発中にチームが使用した重要なドメイン関連の用語を定義です。
 
-  
+> **Attendee.** An attendee is someone who is entitled to attend a conference. An Attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference. An attendee could also be a person who doesn't pay to attend a conference such as a volunteer, speaker, or someone with a 100% discount. An attendee may have multiple associated attendee types (speaker, student, volunteer, track chair, etc.)
+
+**出席者（Attendee）** 出席者は、カンファレンスに出席する資格がある人を指します。出席者は、自分のアジェンダを管理したり、
+バッジを印刷したり、カンファレンス後にフィードバックを提供するといったタスクを実行するためにシステムと対話することができます。
+出席者の中には、ボランティア、スピーカー、または100%の割引を持つ人など、カンファレンスに参加料を支払わない人もいます。
+出席者には、複数の関連する出席者の型（スピーカー、学生、ボランティア、トラックの議長など）があるかもしれません。
+
+> **Registrant.** A registrant is a person who interacts with the system to place orders and to make payments for those orders. A registrant also creates the registrations associated with an order. A registrant may also be an attendee.
+
+**登録者（Registrant）** 登録者は、注文を行い、それらの注文の支払いをするためにシステムと対話する人を指します。
+登録者は、注文に関連づけられる登録も作成します。登録者は出席者である場合もあります。
+
+> **User.** A user is a person such as an attendee, registrant, speaker, or volunteer who is associated with a conference. Each user has a unique record locator code that the user can use to access user-specific information in the system. For example, a registrant can use a record locator code to access her orders, and an attendee can use a record locator code to access his personalized conference agenda.
+
+**ユーザー（User）** ユーザーは、カンファレンスに関連する出席者、登録者、スピーカー、またはボランティアのような人を指します。
+各ユーザーには、システム内のユーザー固有の情報にアクセスするために使用できる一意の確認コードがあります。
+たとえば、登録者は確認コードを使用して注文にアクセスすることができ、
+出席者は確認コードを使用して自分のカンファレンスのアジェンダにアクセスすることができます。
+
 > **CarlosPersona:** We intentionally implemented a record locator mechanism to return to a previously submitted order via the mechanism. This eliminates an often annoying requirement for users to create an account in the system and sign in in order to evaluate its usefulness. Our customers were adamant about this.
 
-**Seat assignment.** A seat assignment associates an attendee with a seat in a confirmed order. An order may have one or more seat assignments associated with it.
+**Carlosのペルソナ** 私たちは以前に提出された注文に戻るための確認コードを使うというメカニズムは意図的な実装です。
+これにより、システムの有用性を評価するためにユーザーがシステムにアカウントを作成し、サインインするという、
+しばしば厄介な要件が排除できます。これは顧客の非常に強い要求です。
 
-**Order.** When a registrant interacts with the system, the system creates an order to manage the reservations, payment, and registrations. An order is confirmed when the registrant has successfully paid for the order items. An order contains one or more order items.
+> **Seat assignment.** A seat assignment associates an attendee with a seat in a confirmed order. An order may have one or more seat assignments associated with it.
 
-**Order item.** An order item represents a seat type and quantity, and is associated with an order. An order item exists in one of three states: created, reserved, or rejected. An order item is initially in the created state. An order item is in the reserved state if the system has reserved the quantity of seats of the seat type requested by the registrant. An order item is in the rejected state if the system cannot reserve the quantity of seats of the seat type requested by the registrant.
+**席の割り当て（Seat assignment）** 席の割り当ては、出席者を確定した注文の席と関連付けます。
+注文には、1つ以上の席の割り当てが関連付けられることがあります。
 
-**Seat.** A seat represents the right to be admitted to a conference or to access a specific session at the conference such as a cocktail party, a tutorial, or a workshop. The business customer may change the quota of seats for each conference. The business customer may also change the quota of seats for each session.
-Reservation. A reservation is a temporary reservation of one or more seats. The ordering process creates reservations. When a registrant begins the ordering process, the system makes reservations for the number of seats requested by the registrant. These seats are then not available for other registrants to reserve. The reservations are held for n minutes during which the registrant can complete the ordering process by making a payment for those seats. If the registrant does not pay for the seats within n minutes, the system cancels the reservation and the seats become available to other registrants to reserve.
+> **Order.** When a registrant interacts with the system, the system creates an order to manage the reservations, payment, and registrations. An order is confirmed when the registrant has successfully paid for the order items. An order contains one or more order items.
 
-**Seat availability.** Every conference tracks seat availability for each type of seat. Initially, all of the seats are available to reserve and purchase. When a seat is reserved, the number of available seats of that type is decremented. If the system cancels the reservation, the number of available seats of that type is incremented. The business customer defines the initial number of each seat type to be made available; this is an attribute of a conference. A conference owner may adjust the numbers for the individual seat types.
+**注文（Order）** 登録者がシステムと対話すると、システムは登録を管理するための注文、支払い、および登録を作成します。
+登録者が注文アイテムの支払いを正常に完了すると、注文が確定されます。注文には1つ以上の注文アイテムが含まれます。
 
-**Conference site.** You can access every conference defined in the system by using a unique URL. Registrants can begin the ordering process from this site.
+> **Order item.** An order item represents a seat type and quantity, and is associated with an order. An order item exists in one of three states: created, reserved, or rejected. An order item is initially in the created state. An order item is in the reserved state if the system has reserved the quantity of seats of the seat type requested by the registrant. An order item is in the rejected state if the system cannot reserve the quantity of seats of the seat type requested by the registrant.
 
-> Each of the terms defined here was formulated through active discussions between the development team and the domain experts. The following is a sample conversation between developers and domain experts that illustrates how the team arrived at a definition of the term _attendee_.
+**注文アイテム（Order item）** 注文アイテムは、席の種類と数量を表し、注文に関連付けられます。
+注文アイテムには、作成済、予約済、または拒否済という3つの状態があります。注文アイテムの初期状態は作成済です。
+予約済は、システムが登録者が要求した席の種類の数量の席の予約が完了した状態です。
+拒否済は、システムが登録者が要求した席の種類の数量の席を予約できなかった状態です。
+
+> **Seat.** A seat represents the right to be admitted to a conference or to access a specific session at the conference such as a cocktail party, a tutorial, or a workshop. The business customer may change the quota of seats for each conference. The business customer may also change the quota of seats for each session.
+
+**席（Seat）** 席は、カンファレンスに入場する権利、またはカンファレンスでの特定のセッション（カクテルパーティ、
+チュートリアル、ワークショップなど）にアクセスする権利を表します。ビジネスの顧客は、
+各カンファレンスの席の割り当てを変更することができます。ビジネスの顧客は、各セッションの席の割り当てを変更することもできます。
+
+> Reservation. A reservation is a temporary reservation of one or more seats. The ordering process creates reservations. When a registrant begins the ordering process, the system makes reservations for the number of seats requested by the registrant. These seats are then not available for other registrants to reserve. The reservations are held for n minutes during which the registrant can complete the ordering process by making a payment for those seats. If the registrant does not pay for the seats within n minutes, the system cancels the reservation and the seats become available to other registrants to reserve.
+
+**予約（Reservation）** 予約は1つ以上の席の一時的な予約を表します。注文プロセスは予約を作成します。
+登録者が注文プロセスを開始すると、システムは登録者が要求した席の数の予約を行います。
+これらの席は、他の登録者が予約することはできません。
+予約は所定時間保持され、その間に登録者はこれらの席の支払いを行って注文プロセスを完了することができます。
+登録者が所定時間以内に席の支払いをしない場合、システムは予約をキャンセルし、他の登録者が席をよやくできるようになります。
+
+> **Seat availability.** Every conference tracks seat availability for each type of seat. Initially, all of the seats are available to reserve and purchase. When a seat is reserved, the number of available seats of that type is decremented. If the system cancels the reservation, the number of available seats of that type is incremented. The business customer defines the initial number of each seat type to be made available; this is an attribute of a conference. A conference owner may adjust the numbers for the individual seat types.
+
+**席の利用（Seat availability）.**
+各カンファレンスは、各種類の席の利用を追跡します。最初は、すべての席が予約および購入可能です。
+席を予約すると、予約した種類の席の利用可能な数が減少します。システムが予約をキャンセルすると、キャンセルした種類の利用可能な席の数が増加します。
+ビジネスの顧客は、利用可能とする各席の種類の初期数を定義します。また、これはカンファレンスの属性とします。
+カンファレンスのオーナーは、個々の席の種類の数を調整することができます。
+
+> **Conference site.** You can access every conference defined in the system by using a unique URL. Registrants can begin the ordering process from this site.
+
+**カンファレンスサイト（Conference site）**
+システムで定義されたすべてのカンファレンスには、ユニークなURLを使用してアクセスできます。
+登録者は、このサイトから注文プロセスを開始できます。
+
+
+>> Each of the terms defined here was formulated through active discussions between the development team and the domain experts. The following is a sample conversation between developers and domain experts that illustrates how the team arrived at a definition of the term _attendee_.
+> 
+> ここで定義されている各用語は、開発チームとドメイン専門家の間での活発な議論を通じて形成されました。
+> 以下は、チームが _出席者_ という用語の定義にたどり着いた方法を示す開発者とドメイン専門家の間のサンプル会話です。
+>>
+>> Developer 1: Here's an initial stab at a definition for _attendee_. "An attendee is someone who has paid to attend a conference. An attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference."
+> 
+> 開発者1: では、_出席者_ という用語の定義について考えたいと思います。
+> 「出席者は、カンファレンスに参加するために支払いを行った人です。出席者は、自分のアジェンダを管理したり、
+> バッジを印刷したり、カンファレンス後にフィードバックを提供するためのタスクを実行するためにシステムと対話できます。」
+>>
+>> Domain Expert 1: Not all attendees will pay to attend the conference. For example, some conferences will have volunteer helpers, also speakers typically don't pay. And, there may be some cases where an attendee gets a 100% discount.
 >
-> Developer 1: Here's an initial stab at a definition for _attendee_. "An attendee is someone who has paid to attend a conference. An attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference."
+> ドメイン専門家1: すべての出席者がカンファレンスに参加するために支払いを行うわけではありません。
+> 例えば、いくつかのカンファレンスにはボランティアのヘルパーがいます。また、通常、スピーカーは支払いを行いません。
+> 出席者が100%割引を受ける場合もあります。
+> 
+>>
+>> Domain Expert 1: Don't forget that it's not the attendee who pays; that's done by the registrant.
 >
-> Domain Expert 1: Not all attendees will pay to attend the conference. For example, some conferences will have volunteer helpers, also speakers typically don't pay. And, there may be some cases where an attendee gets a 100% discount.
+> ドメイン専門家1: 出席者が支払いを行う人というわけではないことを忘れないでください。支払いを行うのは登録者です。
+>>
+>> Developer 1: So we need to say that Attendees are people who are authorized to attend a conference?
+> 
+> 開発者1: では、出席者とはカンファレンスに出席する認可を得た人たち、ということでしょうか？
+> 
+>>
+>> Developer 2: We need to be careful about the choice of words here. The term authorized will make some people think of security and authentication and authorization.
+> 
+> 開発者2: ここでの言葉の選び方には注意が必要です。認可という言葉は、セキュリティや認証、認可を連想させるでしょう。
+> 
+>>
+>> Developer 1: How about entitled?
+> 
+> 開発者1: それなら「権利がある」という言葉はどうでしょうか？
+> 
+>>
+>> Domain Expert 1: When the system performs tasks such as printing badges, it will need to know what type of attendee the badge is for. For example, speaker, volunteer, paid attendee, and so on.
+> 
+> ドメイン専門家1: システムがバッジの印刷などのタスクを実行するとき、どの種類の出席者のバッジを印刷するのかを知る必要があります。
+> 例えば、スピーカー、ボランティア、有料の出席者など。
+>>
+>> Developer 1: Now we have this as a definition that captures everything we've discussed. An attendee is someone who is entitled to attend a conference. An attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference. An attendee could also be a person who doesn't pay to attend a conference such as a volunteer, speaker, or someone with a 100% discount. An attendee may have multiple associated attendee types (speaker, student, volunteer, track chair, etc.)
 >
-> Domain Expert 1: Don't forget that it's not the attendee who pays; that's done by the registrant.
->
-> Developer 1: So we need to say that Attendees are people who are authorized to attend a conference?
->
-> Developer 2: We need to be careful about the choice of words here. The term authorized will make some people think of security and authentication and authorization.
->
-> Developer 1: How about entitled?
->
-> Domain Expert 1: When the system performs tasks such as printing badges, it will need to know what type of attendee the badge is for. For example, speaker, volunteer, paid attendee, and so on.
->
-> Developer 1: Now we have this as a definition that captures everything we've discussed. An attendee is someone who is entitled to attend a conference. An attendee can interact with the system to perform tasks such as manage his agenda, print his badge, and provide feedback after the conference. An attendee could also be a person who doesn't pay to attend a conference such as a volunteer, speaker, or someone with a 100% discount. An attendee may have multiple associated attendee types (speaker, student, volunteer, track chair, etc.)
+> 開発者1: これまでの議論をすべてを全て加味した定義は以下となります。
+> 出席者はカンファレンスに出席する権利がある人です。出席者は、自分のアジェンダを管理したり、
+> バッジを印刷したり、カンファレンス後にフィードバックを提供するなどのタスクを実行するためにシステムと対話できます。
+> 出席者は、ボランティアやスピーカー、100%の割引を受ける人など、カンファレンスに参加するために支払わない人もいます。
+> 出席者は、関連する複数の出席者のタイプ（スピーカー、学生、ボランティア、トラックチェアなど）を持つことがあります。
+> 
 
 # Requirements for creating orders
 
