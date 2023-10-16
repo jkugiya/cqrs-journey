@@ -95,22 +95,43 @@ A single recipient processes a command. A command bus transports commands that c
 > **Garyのペルソナ:** コマンドの捉え方を少々変えることで、少し異なった最適化を行うこともできますが、詳細は第6章の[システムのバージョン管理][j_chapter6]を参照してください。
 
 
-**Event.** An _event_, such as **OrderConfirmed**, describes something that has happened in the system, typically as a result of a command. Aggregates in the domain model raise events.
+> **Event.** An _event_, such as **OrderConfirmed**, describes something that has happened in the system, typically as a result of a command. Aggregates in the domain model raise events.
+> Multiple subscribers can handle a specific event. Aggregates publish events to an event bus; handlers register for specific types of events on the event bus and then deliver the event to the subscriber. In this bounded context, the only subscriber is a process manager.
 
-Multiple subscribers can handle a specific event. Aggregates publish events to an event bus; handlers register for specific types of events on the event bus and then deliver the event to the subscriber. In this bounded context, the only subscriber is a process manager.
+**イベント** **OrderConfirmed** といったイベントはシステム内で何かが発生したことを表します。
+イベントは通常、コマンドの結果として発生します。 ドメインモデルの集約がイベントを発生させます。
+イベントは複数の購読者が処理することがあります。集約がイベントをイベントバスに発行し、イベントハンドラがイベントバス上で購読するイベントの型を指定することによって
+イベントが購読者に配送されます。今回の例では、境界付けられたコンテキストにおける購読者はプロセスマネージャのみです。
 
-**Process manager.** In this bounded context, a _process manager_ is a class that coordinates the behavior of the aggregates in the domain. A process manager subscribes to the events that the aggregates raise, and then follow a simple set of rules to determine which command or commands to send. The process manager does not contain any business logic; it simply contains logic to determine the next command to send. The process manager is implemented as a state machine, so when it responds to an event, it can change its internal state in addition to sending a new command.
+> **Process manager.** In this bounded context, a _process manager_ is a class that coordinates the behavior of the aggregates in the domain. A process manager subscribes to the events that the aggregates raise, and then follow a simple set of rules to determine which command or commands to send. The process manager does not contain any business logic; it simply contains logic to determine the next command to send. The process manager is implemented as a state machine, so when it responds to an event, it can change its internal state in addition to sending a new command.
 Our process manager is an implementation of the Process Manager pattern defined on pages 312 to 321 of the book by Gregor Hohpe and Bobby Woolf,  entitled _Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions_ (Addison-Wesley Professional, 2003).
 
-> **MarkusPersona:** It can be difficult for someone new to the code to follow the flow of commands and events through the system. For a discussion of a technique that can help, see the section "Impact on testing" in Chapter 4, "[Extending and Enhancing the Orders and Registrations Bounded Contexts][j_chapter4]."
+**プロセスマネージャ** 今回の境界づけられたコンテキストでは、_プロセスマネージャ_ はドメイン内の集約の振る舞いを
+調整するクラスです。プロセスマネージャは、集約で発生するイベントを購読し、単純なルールセットに従って、送信するコマンドを決定します。
+プロセスマネージャはビジネスロジックを持たず、単に次に送信するコマンドを決定するロジックを持ちます。
+プロセスマネージャはステートマシンでもあり、イベントを処理するとき、新しいコマンドを送信するだけでなく、
+内部の状態を変更することもあります。
 
-The process manager in this bounded context can receive commands as well 
-as subscribe to events. 
+>> **MarkusPersona:** It can be difficult for someone new to the code to follow the flow of commands and events through the system. For a discussion of a technique that can help, see the section "Impact on testing" in Chapter 4, "[Extending and Enhancing the Orders and Registrations Bounded Contexts][j_chapter4]."
 
-> **GaryPersona:** The team initially referred to the process manager class in the orders bounded context as a saga. To find out why we decided to change the terminology, see the section [Patterns and Concepts](#patternsandconcepts) later in this chapter.
+> **Markusのペルソナ** 初めてコードに触れる人にとって、システム内のコマンドやイベントの流れを追うのは難しいかもしれません。
+> 第4章"[注文と登録の境界付けられたコンテキストの拡張と強化][j_chapter4]"の "テストへの影響 "のセクションで紹介するテクニックが参考になります。
 
-The Reference Guide contains additional definitions and explanations of 
-CQRS related terms.
+
+> The process manager in this bounded context can receive commands as well 
+> as subscribe to events. 
+
+今回の境界付けられたコンテキストはコマンドの受信もイベントの購読も行います。
+
+>> **GaryPersona:** The team initially referred to the process manager class in the orders bounded context as a saga. To find out why we decided to change the terminology, see the section [Patterns and Concepts](#patternsandconcepts) later in this chapter.
+
+> **Garyのペルソナ** チームは当初、境界付けられたコンテキストにおけるプロセスマネージャをサーガと呼んでいた。
+> この用語を変更した理由については、[パターンと概念](#patternsandconcepts)のセクションを参照してください。
+
+> The Reference Guide contains additional definitions and explanations of 
+> CQRS related terms.
+
+このリファレンスガイドではCQRS関連用語に関する定義をさらに付け加えていきます。
 
 # Domain definitions (ubiquitous language)
 
