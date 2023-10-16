@@ -264,23 +264,41 @@ Our process manager is an implementation of the Process Manager pattern defined 
 > 出席者は、関連する複数の出席者のタイプ（スピーカー、学生、ボランティア、トラックチェアなど）を持つことがあります。
 > 
 
-# Requirements for creating orders
+> # Requirements for creating orders
 
-A registrant is the person who reserves and pays for (orders) seats at a conference. Ordering is a two-stage process: first, the registrant reserves a number of seats and then pays for the seats to confirm the reservation. If registrant does not complete the payment, the seat reservations expire after a fixed period and the system makes the seats available for other registrants to reserve.
+# 注文の作成に関する要求
 
-Figure 1 shows some of the early UI mockups that the team used to explore the seat-ordering story. 
+> A registrant is the person who reserves and pays for (orders) seats at a conference. Ordering is a two-stage process: first, the registrant reserves a number of seats and then pays for the seats to confirm the reservation. If registrant does not complete the payment, the seat reservations expire after a fixed period and the system makes the seats available for other registrants to reserve.
+
+登録者は、カンファレンスで席を予約し、支払いを行う（注文する）人です。注文には2つのプロセスがあります。まず、
+登録者が席を予約し、次に席を確保するために支払いを行います。登録者が支払いを完了しない場合、席の予約は
+一定期間後に失効し、システムは他の登録者が予約できるように席を利用可能にします。
+
+> Figure 1 shows some of the early UI mockups that the team used to explore the seat-ordering story. 
+ 
+図1は、チームが席注文のストーリーを探索するために使用した初期のUIモックアップの一部です。
 
 ![Figure 1][fig1]
 
-**Ordering UI mockups**
+> **Ordering UI mockups**
 
-These UI mockups helped the team in several ways, allowing them to:
+**注文UIのモックアップ**
 
-* Communicate the core team's vision for the system to the graphic designers who are on an independent team at a third-party company.
-* Communicate the domain expert's knowledge to the developers.
-* Refine the definition of terms in the ubiquitous language.
-* Explore "what if" questions about alternative scenarios and approaches.
-* Form the basis for the system's suite of acceptance tests.
+> These UI mockups helped the team in several ways, allowing them to:
+
+これらのUIモックアップは以下のように役立ちました。
+
+> * Communicate the core team's vision for the system to the graphic designers who are on an independent team at a third-party company.
+> * Communicate the domain expert's knowledge to the developers.
+> * Refine the definition of terms in the ubiquitous language.
+> * Explore "what if" questions about alternative scenarios and approaches.
+> * Form the basis for the system's suite of acceptance tests.
+
+* システムに対するコアチームのビジョンを、外注先の独立したチームに所属するグラフィックデザイナーに伝える
+* ドメイン専門家の知識を開発者に伝える
+* ユビキタス言語の用語の定義を精緻化する。
+* 代替シナリオやアプローチに関する「もし...ならどうなるの？」という問いにこたえられるかどうかを探索する
+* システムの受け入れテストの組み合わせの基礎を形成する。
 
 # Architecture
 
