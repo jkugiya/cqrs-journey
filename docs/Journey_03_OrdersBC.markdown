@@ -300,16 +300,40 @@ Our process manager is an implementation of the Process Manager pattern defined 
 * 代替シナリオやアプローチに関する「もし...ならどうなるの？」という問いにこたえられるかどうかを探索する
 * システムの受け入れテストの組み合わせの基礎を形成する。
 
-# Architecture
+> # Architecture
 
-The application is designed to deploy to Windows Azure. At this stage in the journey, the application consists of a web role that contains the ASP.NET MVC web application and a worker role that contains the message handlers and domain objects. The application uses SQL Database databases for data storage, both on the write-side and the read-side. The application uses the Windows Azure Service Bus to provide its messaging infrastructure.
+# アーキテクチャ
 
-While you are exploring and testing the solution, you can run it locally, either using the Windows Azure compute emulator or by running the MVC web application directly and running a console application that hosts the handlers and domain objects. When you run the application locally, you can use a local SQL Server Express database instead of SQL Database, and use a simple messaging infrastructure implemented in a SQL Server Express database.
+> The application is designed to deploy to Windows Azure. At this stage in the journey, the application consists of a web role that contains the ASP.NET MVC web application and a worker role that contains the message handlers and domain objects. The application uses SQL Database databases for data storage, both on the write-side and the read-side. The application uses the Windows Azure Service Bus to provide its messaging infrastructure.
 
-For more information about the options for running the application, see 
+これから紹介するアプリケーションはWindows Azureにデプロイするために設計されています。
+この段階では、アプリケーションはASP.NET MVCのWebアプリケーションと、
+メッセージハンドラやドメインオブジェクトを含むワーカーで構成されています。
+アプリケーションはデータストレージとしてSQL Databaseデータベースを書き込み側と読み取り側の両方で使用します。
+そのメッセージング基盤を提供するためにWindows Azure Service Busを使用しています。
+
+> While you are exploring and testing the solution, you can run it locally, either using the Windows Azure compute emulator or by running the MVC web application directly and running a console application that hosts the handlers and domain objects. When you run the application locally, you can use a local SQL Server Express database instead of SQL Database, and use a simple messaging infrastructure implemented in a SQL Server Express database.
+
+ソリューションを探索・テストするとき、Windows Azureの計算エミュレータを使用したり、
+MVCのWebアプリケーションを直接実行したり、ハンドラとドメインオブジェクトをホストするコンソールアプリケーションを実行することで、
+ローカル実行できます。
+アプリケーションをローカルで実行する際には、SQL Databaseの代わりにローカルのSQL Server Expressを使用して、
+SQL Server Expressで実装されたシンプルなメッセージング基盤を使用することができます。
+
+> For more information about the options for running the application, see 
 [Appendix 1][appendix1].
 
+アプリケーションの実行オプションに関する詳細は、[付録1][appendix1]を参照してください
+
+
 > **GaryPersona:** A frequently cited advantage of the CQRS pattern is that it enables you to scale the read side and write side of the application independently to support the different usage patterns. In this bounded context, however, the number of read operations from the UI is not likely to hugely out-number the write operations: this bounded context focuses on registrants creating orders. Therefore, the read side and the write side are deployed to the same Windows Azure worker role rather than to two separate worker roles that could be scaled independently.
+
+**GaryPersona:** CQRSパターンでよく言及される利点は、アプリケーションの読み込み側と書き込み側を独立してスケールできるので、
+両者の異なる利用パターンをそれぞれ別の方法でサポートできるということです。
+しかし、今回の境界付けられたコンテキストでは、UIからの読み取り操作の数が書き込み操作の数を大幅に上回ることはありません。
+今回の境界付けられたコンテキストは、注文を作成する登録者に焦点を当てます。
+したがって、読み取り側と書き込み側は、独立してスケールする2つの別々のWindows Azureワーカーではなく、同じWindows Azureワーカーにデプロイします。
+
 
 # Patterns and concepts <a name="patternsandconcepts"/>
 
