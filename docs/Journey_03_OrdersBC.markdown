@@ -335,70 +335,120 @@ SQL Server Expressで実装されたシンプルなメッセージング基盤�
 したがって、読み取り側と書き込み側は、独立してスケールする2つの別々のWindows Azureワーカーではなく、同じWindows Azureワーカーにデプロイします。
 
 
-# Patterns and concepts <a name="patternsandconcepts"/>
+> # Patterns and concepts
 
-The team decided to implement the first bounded context without using 
-event sourcing in order to keep things simple. However, they did agree 
-that if they later decided that event sourcing would bring specific 
-benefits to this bounded context, then they would revisit this decision. 
+# パターンと概念 <a name="patternsandconcepts"/>
 
-> **Note** For a description of how event sourcing relates to the CQRS
-> pattern, see [Introducing Event Sourcing][r_chapter3] in the Reference
-> Guide.
+> The team decided to implement the first bounded context without using 
+> event sourcing in order to keep things simple. However, they did agree 
+> that if they later decided that event sourcing would bring specific 
+> benefits to this bounded context, then they would revisit this decision. 
 
-One of the important discussions the team had concerned the choice of aggregates and entities that they would implement. The following images from the team's whiteboard illustrate some of their initial thoughts, and questions about the alternative approaches they could take with a simple conference seat reservation scenario to try and understand the pros and cons of alternative approaches.
+チームは、物事をシンプルに保つために、イベントソーシングを使用せずに最初の境界付けられたコンテキストを実装することにしました。
+ただし、後にイベントソーシングがこの境界付けられたコンテキストに具体的な利益をもたらすと判断した場合、
+彼らはこの決定を再評価することに同意しました。
 
-> "A value I think developers would benefit greatly from recognizing is
-> the de-emphasis on the means and methods for persistence of objects in
-> terms of relational storage. Teach them to avoid modeling the domain
-> as if it was a relational store, and I think it will be easier to
-> introduce and understand both DDD and CQRS."  
-> &mdash; Josh Elster, CQRS Advisors Mail List
+>> **Note** For a description of how event sourcing relates to the CQRS
+>> pattern, see [Introducing Event Sourcing][r_chapter3] in the Reference
+>> Guide.
+> 
+> **注** イベントソーシングがCQRSパターンとどのように関連しているかの説明については、
+> 参考ガイドの[イベントソーシングの紹介][r_chapter3]を参照してください。 Guide.
 
-> **GaryPersona:** These diagrams deliberately exclude details of how
-> the system delivers commands and events through command and event
-> handlers. The diagrams focus on the logical relationships between the
-> aggregates in the domain.
+> One of the important discussions the team had concerned the choice of aggregates and entities that they would implement. The following images from the team's whiteboard illustrate some of their initial thoughts, and questions about the alternative approaches they could take with a simple conference seat reservation scenario to try and understand the pros and cons of alternative approaches.
 
-This scenario considers what happens when a registrant tries to book
-several seats at a conference. The system must:
+チームが行った重要な議論の一つは、実装する集約とエンティティの選択に関してでした。
+以下のチームのホワイトボードからの画像は、彼らの初期の考えや、代替的なアプローチの利点と欠点を理解するための
+シンプルなカンファレンス席の予約シナリオに関する質問を示しています。
 
-- Check that sufficient seats are available.
-- Record details of the registration.
-- Update the total number of seats booked for the conference.
+>> "A value I think developers would benefit greatly from recognizing is
+>> the de-emphasis on the means and methods for persistence of objects in
+>> terms of relational storage. Teach them to avoid modeling the domain
+>> as if it was a relational store, and I think it will be easier to
+>> introduce and understand both DDD and CQRS."  
+>> &mdash; Josh Elster, CQRS Advisors Mail List
+>
+>開発者がオブジェクトの永続化の手段・方法に重きを置き過ぎてはならないことを理解することがとても重要です。
+>DDDとCQRSの両方を導入し理解を手助けするには、開発者がドメインを関係データベースのように
+>モデリングすることを避けるよう教えましょう。
+> 
+> &mdash; ジョッシュ・エルスター, CQRSアドバイザーズ メーリングリスト
 
-> **Note:** We deliberately kept the scenario simple to avoid
-> distractions while the team examines the alternatives. These examples
-> do not illustrate the final implementation of this bounded context. 
+>> **GaryPersona:** These diagrams deliberately exclude details of how
+>> the system delivers commands and events through command and event
+>> handlers. The diagrams focus on the logical relationships between the
+>> aggregates in the domain.
+> 
+> **Garyのペルソナ** この図では、システムがコマンドやイベントのハンドラを通じてコマンドと
+> イベントを配信する手段の詳細については、意図的に除外していいます。
+> この図はドメイン内の集約間の論理的な関係に重点を置いています。
 
-The first approach considered by the team, shown in Figure 2, uses two 
-separate aggregates.
+> This scenario considers what happens when a registrant tries to book
+> several seats at a conference. The system must:
+> - Check that sufficient seats are available.
+> - Record details of the registration.
+> - Update the total number of seats booked for the conference.
+ 
+今回のシナリオでは、登録者がカンファレンスで複数の座席を予約しようとした場合のことを考えます。
+システムは以下の要件を満たす必要があります。
+
+- 予約時に空席があるかどうかを確認する
+- 登録の詳細を記録する
+- カンファレンスで予約された席の総数を記録する
+
+>> **Note:** We deliberately kept the scenario simple to avoid
+>> distractions while the team examines the alternatives. These examples
+>> do not illustrate the final implementation of this bounded context. 
+>
+> **Note:** チームが大体シナリオを考える際により集中できるように意図的にシナリオを簡素にしています。
+> これらの例は最終的な境界付けられたコンテキストの実装とは対応していません。
+
+> The first approach considered by the team, shown in Figure 2, uses two 
+> separate aggregates.
+
+チームが初めに検討したのは、図2に示すような2つの別々の集約です。
 
 ![Figure 2][fig2]
 
-**Approach 1: Two separate aggregates**
+> **Approach 1: Two separate aggregates**
 
-The numbers in the diagram correspond to the following steps:
+**アプローチ1: 2つの別々の集約**
 
-1. The UI sends a command to register Attendees X and Y for
-   conference 157. The command is routed to a new **Order** aggregate.
-2. The **Order** aggregate raises an event that reports that an order
-   has been created. The event is routed to the **SeatsAvailability**
-   aggregate.
-3. The **SeatsAvailability** aggregate with an ID of 157 is
-   re-hydrated from the data store.
-4. The **SeatsAvailability** aggregate updates its total
-   number of seats booked.
-5. The updated version of the **SeatsAvailability**
-   aggregate is persisted to the data store.
-6. The new **Order** aggregate, with an ID of 4239, is persisted to the
-   data store.
+> The numbers in the diagram correspond to the following steps:
+> 
+> 1. The UI sends a command to register Attendees X and Y for
+>    conference 157. The command is routed to a new **Order** aggregate.
+> 2. The **Order** aggregate raises an event that reports that an order
+>    has been created. The event is routed to the **SeatsAvailability**
+>    aggregate.
+> 3. The **SeatsAvailability** aggregate with an ID of 157 is
+>    re-hydrated from the data store.
+> 4. The **SeatsAvailability** aggregate updates its total
+>    number of seats booked.
+> 5. The updated version of the **SeatsAvailability**
+>    aggregate is persisted to the data store.
+> 6. The new **Order** aggregate, with an ID of 4239, is persisted to the
+>    data store.
+
+図の番号は以下のステップと対応しています。
+
+1. UIは参加者XとYをカンファレンス157に登録するコマンドを送信する
+2. **注文** 集約は注文が作られたことを示すイベントを発行する。イベントは **席利用** 集約が受信します。
+3. データストアから **席利用** 集約を再構築します。
+4. **席利用** 集約の予約席総数を更新します。
+5. 更新した **席利用** 集約を永続化します。
+6. 4239番のIDを持つ **注文** 集約をデータストアに永続化します。
    
-> **MarkusPersona:** The term rehydration refers to the process of
-> deserializing the aggregate instance from a data store.
-
-> **JanaPersona:** You could consider using the [Memento
-> pattern][memento] to handle the persistence and rehydration.
+>> **MarkusPersona:** The term rehydration refers to the process of
+>> deserializing the aggregate instance from a data store.
+> 
+> **Markusのペルソナ** 再構築という用語はデータストアから集約のインスタンスをデシリアライズすることです。
+> 
+>> **JanaPersona:** You could consider using the [Memento
+>> pattern][memento] to handle the persistence and rehydration.
+> 
+> **Janaのペルソナ** 永続化と再構築の処理は [メメントパターン][memento] を使うといいかもしれません
+> 
 
 The second approach considered by the team, shown in Figure 3, uses a 
 single aggregate in place of two. 
