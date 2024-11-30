@@ -80,7 +80,7 @@ CQRSを巡る旅の第一歩は、チームがシステムの中核でありな�
 > more detail, and possible alternative definitions, see [A CQRS/ES Deep 
 > Dive][r_chapter4] in the Reference Guide. 
 
-本章では、いくつか一時的な用語の定義を行います。詳細や別の代替案については、リファレンスガイドの[CQRSとESの深堀り][r_chapter4]を参照してください。
+本章では、いくつか一時的な用語の定義を行います。詳細や別の代替案については、リファレンスガイドの[CQRSとESについて深堀する][r_chapter4]を参照してください。
 
 > **Command.** A _command_ is a request for the system to perform an action that changes the state of the system. Commands are imperatives; **MakeSeatReservation** is one example. In this bounded context, commands originate either from the UI as a result of a user initiating a request, or from a process manager when the process manager is directing an aggregate to perform an action.
 
@@ -100,8 +100,8 @@ A single recipient processes a command. A command bus transports commands that c
 
 **イベント** **OrderConfirmed** といったイベントはシステム内で何かが発生したことを表します。
 イベントは通常、コマンドの結果として発生します。 ドメインモデルの集約がイベントを発生させます。
-イベントは複数の購読者が処理することがあります。集約がイベントをイベントバスに発行し、イベントハンドラがイベントバス上で購読するイベントの型を指定することによって
-イベントが購読者に配送されます。今回の例では、境界付けられたコンテキストにおける購読者はプロセスマネージャのみです。
+イベントは複数の購読者が処理することがあります。集約がイベントをイベントバスに発行し、イベントハンドラがあらかじめ決まった種類のイベントを、
+購読者に配信します。今回の例では、境界付けられたコンテキストにおける購読者はプロセスマネージャのみです。
 
 > **Process manager.** In this bounded context, a _process manager_ is a class that coordinates the behavior of the aggregates in the domain. A process manager subscribes to the events that the aggregates raise, and then follow a simple set of rules to determine which command or commands to send. The process manager does not contain any business logic; it simply contains logic to determine the next command to send. The process manager is implemented as a state machine, so when it responds to an event, it can change its internal state in addition to sending a new command.
 Our process manager is an implementation of the Process Manager pattern defined on pages 312 to 321 of the book by Gregor Hohpe and Bobby Woolf,  entitled _Enterprise Integration Patterns: Designing, Building, and Deploying Messaging Solutions_ (Addison-Wesley Professional, 2003).
@@ -345,14 +345,14 @@ SQL Server Expressで実装されたシンプルなメッセージング基盤�
 
 チームは、物事をシンプルに保つために、イベントソーシングを使用せずに最初の境界付けられたコンテキストを実装することにしました。
 ただし、後にイベントソーシングがこの境界付けられたコンテキストに具体的な利益をもたらすと判断した場合、
-彼らはこの決定を再評価することに同意しました。
+彼らはこの決定を再評価することにしました。
 
 >> **Note** For a description of how event sourcing relates to the CQRS
 >> pattern, see [Introducing Event Sourcing][r_chapter3] in the Reference
 >> Guide.
 > 
-> **注** イベントソーシングがCQRSパターンとどのように関連しているかの説明については、
-> 参考ガイドの[イベントソーシングの紹介][r_chapter3]を参照してください。 Guide.
+> **注** イベントソーシングとCQRSパターンの関係については、
+> 参考ガイドの[イベントソーシングの紹介][r_chapter3]の説明を参照してください。
 
 > One of the important discussions the team had concerned the choice of aggregates and entities that they would implement. The following images from the team's whiteboard illustrate some of their initial thoughts, and questions about the alternative approaches they could take with a simple conference seat reservation scenario to try and understand the pros and cons of alternative approaches.
 

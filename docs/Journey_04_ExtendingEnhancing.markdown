@@ -1,6 +1,8 @@
 ### This version of this chapter was part of our working repository during the project. The final version of this chapter is now available on MSDN at [http://aka.ms/cqrs](http://aka.ms/cqrs).
 
-# Chapter 4: Extending and Enhancing the Orders and Registrations Bounded Context
+> # Chapter 4: Extending and Enhancing the Orders and Registrations Bounded Context
+
+# 第4章: 注文と登録の境界付けられたコンテキストの拡張と強化
 
 _Further exploration of the Orders and Registrations bounded context._
 
@@ -930,7 +932,9 @@ The Conference Management bounded context raises an event whenever the
 total number of available seats changes, the **SeatsAvailability** class 
 then handles the event when its handler invokes the **AddSeats** method. 
 
-# Impact on testing
+> # Impact on testing
+
+# テストへの影響
 
 This section discusses some of the testing issues addressed during this 
 stage of the journey. 
