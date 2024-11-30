@@ -325,7 +325,6 @@ SQL Server Expressで実装されたシンプルなメッセージング基盤�
 
 アプリケーションの実行オプションに関する詳細は、[付録1][appendix1]を参照してください
 
-
 > **GaryPersona:** A frequently cited advantage of the CQRS pattern is that it enables you to scale the read side and write side of the application independently to support the different usage patterns. In this bounded context, however, the number of read operations from the UI is not likely to hugely out-number the write operations: this bounded context focuses on registrants creating orders. Therefore, the read side and the write side are deployed to the same Windows Azure worker role rather than to two separate worker roles that could be scaled independently.
 
 **GaryPersona:** CQRSパターンでよく言及される利点は、アプリケーションの読み込み側と書き込み側を独立してスケールできるので、
