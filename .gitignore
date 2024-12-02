@@ -19,10 +19,10 @@ build/temp
 UpgradeLog*.XML
 _UpgradeReport_Files
 /fix-line-endings.ps1
-/source/Infrastructure/Azure/Settings.xml
-/source/Conference.Azure/csx/
-/source/Migrations/MigrationToV2.Azure/csx/
-/source/Migrations/MigrationToV3.Azure/csx/
+/source/cs/Infrastructure/Azure/Settings.xml
+/source/cs/Conference.Azure/csx/
+/source/cs/Migrations/MigrationToV2.Azure/csx/
+/source/cs/Migrations/MigrationToV3.Azure/csx/
 *.build.csdef
 *crunch*
 .idea
