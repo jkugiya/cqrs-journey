@@ -454,69 +454,110 @@ single aggregate in place of two.
 
 ![Figure 3][fig3]
 
-**Approach 2: A single aggregate**
+> **Approach 2: A single aggregate**
 
-The numbers in the diagram correspond to the following steps:
+** アプローチ2: 1つの集約**
 
-1. The UI sends a command to register Attendees X and Y onto
-   conference 157. The command is routed to the **Conference** aggregate
-   with an ID of 157.
-2. The **Conference** aggregate with an ID of 157 is rehydrated from
-   the data store.
-3. The **Order** entity validates the booking (it queries the 
-   **SeatsAvailability** entity to see if there are enough
-   seats left), and then invokes the method to update the number of
-   seats booked on the conference entity.
-4. The **SeatsAvailability** entity updates its total number
-   of seats booked.
-5. The updated version of the **Conference** aggregate is persisted to
-   the data store.
+> The numbers in the diagram correspond to the following steps:
+> 
+> 1. The UI sends a command to register Attendees X and Y onto
+>    conference 157. The command is routed to the **Conference** aggregate
+>    with an ID of 157.
+> 2. The **Conference** aggregate with an ID of 157 is rehydrated from
+>    the data store.
+> 3. The **Order** entity validates the booking (it queries the 
+>    **SeatsAvailability** entity to see if there are enough
+>    seats left), and then invokes the method to update the number of
+>    seats booked on the conference entity.
+> 4. The **SeatsAvailability** entity updates its total number
+>    of seats booked.
+> 5. The updated version of the **Conference** aggregate is persisted to
+>    the data store.
 
-The third approach considered by the team, shown in Figure 4, uses a 
-process manager to coordinate the interaction between two aggregates. 
+図の番号は以下のステップと対応しています。
+
+1. UIは参加者XとYをカンファレンス157に登録するコマンドを送信する。
+   コマンドはIDが157の **カンファレンス** 集約にルーティングされます。
+2. IDが157の **カンファレンス** 集約をデータストアから再構築します。
+3. **注文** エンティティは予約の有効性を検証し（**席利用** エンティティをクエリして、
+   残りの席が十分あるかどうかを確認します）、その後、カンファレンスエンティティの予約席数を更新するメソッドを呼び出します。
+4. **席利用** エンティティは予約席の総数を更新します。
+5. 更新された **カンファレンス** 集約をデータストアに永続化します。
+
+> The third approach considered by the team, shown in Figure 4, uses a 
+> process manager to coordinate the interaction between two aggregates. 
+
+チームが検討した3番目のアプローチは、図4のように、2つの集約間の相互作用を調整するプロセスマネージャを使用します。
 
 ![Figure 4][fig4]
 
-**Approach 3: Using a process manager**
+> **Approach 3: Using a process manager**
 
-The numbers in the diagram correspond to the following steps:
+**アプローチ3: プロセスマネージャを使用する**
 
-1. The UI sends a command to register Attendees X and Y for
-   conference 157. The command is routed to a new **Order** aggregate.
-2. The new **Order** aggregate, with an ID of 4239,  is persisted to
-   the data store.
-3. The **Order** aggregate raises an event that is handled by the
-   **RegistrationProcessManager** class.
-4. The **RegistrationProcessManager** class determines that a command should
-   be sent to the **SeatsAvailability** aggregate with an ID of
-   157.
-5. The **SeatsAvailability** aggregate is rehydrated from the
-   data store.
-6. The total number of seats booked is updated in the
-   **SeatsAvailability** aggregate and it is persisted to the
-   data store.
+> The numbers in the diagram correspond to the following steps:
+> 
+> 1. The UI sends a command to register Attendees X and Y for
+>    conference 157. The command is routed to a new **Order** aggregate.
+> 2. The new **Order** aggregate, with an ID of 4239,  is persisted to
+>    the data store.
+> 3. The **Order** aggregate raises an event that is handled by the
+>    **RegistrationProcessManager** class.
+> 4. The **RegistrationProcessManager** class determines that a command should
+>    be sent to the **SeatsAvailability** aggregate with an ID of
+>    157.
+> 5. The **SeatsAvailability** aggregate is rehydrated from the
+>    data store.
+> 6. The total number of seats booked is updated in the
+>    **SeatsAvailability** aggregate and it is persisted to the
+>    data store.
 
-> **GaryPersona:** Process manager or saga? Initially the team referred to
-> the **RegistrationProcessManager** class as a saga. However, after they
-> reviewed the original definition of a saga from the paper
-> [Sagas][sagapaper] by Hector Garcia-Molina and Kenneth Salem, they
-> revised their decision. The key reasons for this are that the reservation
-> process does not include explicit compensation steps, and does not
-> need to be represented as a long-lived transaction.
+図の番号は以下のステップと対応しています。
 
-For more information about process managers and sagas, see chapter 6
-[A Saga on Sagas][r_chapter6] in the Reference Guide.
+1. UIは参加者XとYをカンファレンス157に登録するコマンドを送信する。
+   コマンドは新しい **注文** 集約にルーティングされます。
+2. IDが4239の新しい **注文** 集約をデータストアに永続化します。
+3. **注文** 集約がイベントを発行し、 **RegistrationProcessManager** がそれを処理します。
+4. **RegistrationProcessManager** は、IDが157の **席利用** 集約にコマンドを送信する必要があると判断します。
+5. **席利用** 集約をデータストアから再構築します。
+6. **席利用** 集約の予約席の総数を更新し、データストアに永続化します。
+
+>> **GaryPersona:** Process manager or saga? Initially the team referred to
+>> the **RegistrationProcessManager** class as a saga. However, after they
+>> reviewed the original definition of a saga from the paper
+>> [Sagas][sagapaper] by Hector Garcia-Molina and Kenneth Salem, they
+>> revised their decision. The key reasons for this are that the reservation
+>> process does not include explicit compensation steps, and does not
+>> need to be represented as a long-lived transaction.
+
+> **Garyのペルソナ:** プロセスマネージャかサーガか？ 最初はチームは **RegistrationProcessManager** クラスをサーガと呼んでいました。
+> しかし、Hector Garcia-MolinaとKenneth Salemによる論文 [Sagas][sagapaper] の元の定義を見直した後、彼らは決定を見直しました。
+> その主な理由は、予約プロセスに明示的な補償ステップが含まれず、長寿命トランザクションとみなす必要がないためです。
+
+> For more information about process managers and sagas, see chapter 6
+> [A Saga on Sagas][r_chapter6] in the Reference Guide.
+
+プロセスマネージャとサーガについての詳細は、参考ガイドの第6章 [サーガ・パターンにおけるサーガ][r_chapter6] を参照してください。
    
-The team identified the following questions about these approaches:
+> The team identified the following questions about these approaches:
+> 
+> - Where does the validation that there are sufficient seats for the registration take place: in the **Order** or **SeatsAvailability** aggregate? 
+> - Where are the transaction boundaries? 
+> - How does this model deal with concurrency issues when multiple 
+>   registrants try to place orders simultaneously? 
+> - What are the aggregate roots?
 
-- Where does the validation that there are sufficient seats for the registration take place: in the **Order** or **SeatsAvailability** aggregate? 
-- Where are the transaction boundaries? 
-- How does this model deal with concurrency issues when multiple 
-  registrants try to place orders simultaneously? 
-- What are the aggregate roots?
+以上を踏まえて、チームは以下の点について検討を行いました。
 
-The following sections discuss these questions in relation to the three
-approaches considered by the team.
+- 登録時に十分な席があるかどうかの検証はどこで行うべきか： **注文** 集約か **席利用** 集約か？
+- トランザクションの境界をどこに置くべきか？
+- 複数の登録者が同時に注文を行おうとした場合に、並行性に関する問題をどのように処理すべきか？
+- 集約ルートは何であるべきか？
+
+> The following sections discuss these questions in relation to the three
+> approaches considered by the team.
+
+次のセクションでは、チームが検討した3つのアプローチごとに、これらの疑問に答えていきます。
 
 ## Validation
 
