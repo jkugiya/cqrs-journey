@@ -196,7 +196,7 @@ Our process manager is an implementation of the Process Manager pattern defined 
 登録者が注文プロセスを開始すると、システムは登録者が要求した席の数の予約を行います。
 これらの席は、他の登録者が予約することはできません。
 予約は所定時間保持され、その間に登録者はこれらの席の支払いを行って注文プロセスを完了することができます。
-登録者が所定時間以内に席の支払いをしない場合、システムは予約をキャンセルし、他の登録者が席をよやくできるようになります。
+登録者が所定時間以内に席の支払いをしない場合、システムは予約をキャンセルし、他の登録者が席を予約できるようになります。
 
 > **Seat availability.** Every conference tracks seat availability for each type of seat. Initially, all of the seats are available to reserve and purchase. When a seat is reserved, the number of available seats of that type is decremented. If the system cancels the reservation, the number of available seats of that type is incremented. The business customer defines the initial number of each seat type to be made available; this is an attribute of a conference. A conference owner may adjust the numbers for the individual seat types.
 
