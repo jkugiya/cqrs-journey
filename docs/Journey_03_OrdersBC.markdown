@@ -559,47 +559,71 @@ single aggregate in place of two.
 
 次のセクションでは、チームが検討した3つのアプローチごとに、これらの疑問に答えていきます。
 
-## Validation
+> ## Validation
 
-Before a registrant can reserve a seat, the system must check that there 
-are enough seats available. Although logic in the UI can attempt to 
-verify that there are sufficient seats available before it sends a 
-command, the business logic in the domain must also perform the check; 
-this is because the state may change between the time the UI performs
-the validation and the time that the system delivers the command to the
-aggregate in the domain.
+## 入力チェック
 
-> **JanaPersona:** When we talk about UI validation here, we are talking
-> about validation that the Model-View Controller (MVC) controller performs, not the browser.
+> Before a registrant can reserve a seat, the system must check that there 
+> are enough seats available. Although logic in the UI can attempt to 
+> verify that there are sufficient seats available before it sends a 
+> command, the business logic in the domain must also perform the check; 
+> this is because the state may change between the time the UI performs
+> the validation and the time that the system delivers the command to the
+> aggregate in the domain.
 
-In the first model, the validation must take place in either the 
-**Order** or **SeatsAvailability** aggregate. If it is the 
-former, the **Order** aggregate must discover the current seat 
-availability from the **SeatsAvailability** aggregate before 
-the reservation is made and before it raises the event. If it is the 
-latter, the **SeatsAvailability** aggregate must somehow notify the
-**Order** aggregate that it cannot reserve the seats, and that the
-**Order** aggregate must undo (or compensate for) any work that it has
-completed so far.
+登録者が席を予約する前に、システムは利用可能な席が十分にあるかどうかを確認する必要があります。
+UIのロジックがコマンドを送信する前に十分な席が利用可能かどうかをチェックすることもできますが、
+ドメインロジックでもチェックを行う必要があります。
+これはUIがチェックを行う時とシステムが集約にコマンドを配信する時の間に状態が変わることがあるためです。
 
-> **BethPersona:** Undo is just one of many compensating actions that
-> occur in real life. The compensating actions could even be outside of
-> the system implementation and involve human actors: for example, a
-> Contoso clerk or the Business Customer calls the Registrant to tell
-> them that an error was made and that they should ignore the last
-> confirmation email they received from the Contoso system.
+>> **JanaPersona:** When we talk about UI validation here, we are talking
+>> about validation that the Model-View Controller (MVC) controller performs, not the browser.
 
-The second model behaves similarly, except that it is **Order** and 
-**SeatsAvailability** entities cooperating within a 
-**Conference** aggregate. 
+> **Janaのペルソナ:** ここでのUIの入力チェックというのは、ブラウザではなく、Model-View Controller (MVC) コントローラで行うチェックのことです。
 
-In the third model, with the process manager, the aggregates exchange messages
-through the process manager about whether the registrant can make the reservation
-at the current time. 
+> In the first model, the validation must take place in either the 
+> **Order** or **SeatsAvailability** aggregate. If it is the 
+> former, the **Order** aggregate must discover the current seat 
+> availability from the **SeatsAvailability** aggregate before 
+> the reservation is made and before it raises the event. If it is the 
+> latter, the **SeatsAvailability** aggregate must somehow notify the
+> **Order** aggregate that it cannot reserve the seats, and that the
+> **Order** aggregate must undo (or compensate for) any work that it has
+> completed so far.
 
-All three models require entities to communicate about the validation 
-process, but the third model with the process manager appears more complex than the 
-other two. 
+最初のモデルでは、検証は **注文** 集約と **席利用** 集約のどちらかで行う必要があります。
+前者の場合、 **注文** 集約は予約が決定し、イベントを発行する前に **席利用** 集約から現在空いている席の情報を取得する必要があります。
+後者の場合、**席利用** 集約は **注文** 集約に席を予約できないことを通知し、**注文** 集約がそれまでに完了した作業を元に戻す（または補償する）必要があります。
+
+>> **BethPersona:** Undo is just one of many compensating actions that
+>> occur in real life. The compensating actions could even be outside of
+>> the system implementation and involve human actors: for example, a
+>> Contoso clerk or the Business Customer calls the Registrant to tell
+>> them that an error was made and that they should ignore the last
+>> confirmation email they received from the Contoso system.
+
+> **Bethのペルソナ:** 元に戻すことは、実際の生活で発生する多くの補償行動のうちの1つに過ぎません。
+> 補償行動は、システムの実装外で、人間のアクターを巻き込むこともあります。
+> 例えば、Contoso の事務員やビジネスカスタマーが登録者に電話をかけて、エラーが発生したことを伝え、
+> Contoso システムから受け取った最後の確認メールを無視するように伝えてもよいでしょう。
+
+> The second model behaves similarly, except that it is **Order** and 
+> **SeatsAvailability** entities cooperating within a 
+> **Conference** aggregate. 
+
+2番目のモデルも同様に動作しますが、 **注文** エンティティと **席利用** エンティティが **カンファレンス** 集約内で協力できる点が異なります。
+
+> In the third model, with the process manager, the aggregates exchange messages
+> through the process manager about whether the registrant can make the reservation
+> at the current time. 
+
+プロセスマネージャを使用した3番目のモデルでは、集約はプロセスマネージャを介して、登録者が現在予約を行うことができるかどうかについてメッセージをやり取りします。
+
+> All three models require entities to communicate about the validation 
+> process, but the third model with the process manager appears more complex than the 
+> other two. 
+
+3つのモデルすべてで、エンティティは入力チェックのために通信する必要がありますが、プロセスマネージャを使用した3番目のモデルは他の2つよりも複雑に見えます。
 
 ## Transaction boundaries
 
