@@ -100,28 +100,46 @@ CQRSに関する議論の中で、境界づけられたコンテキスト間や�
 > **ワークフローの調整**という用語を使用していました。
 > このパターンは、Gregor HohpeとBobby Woolfによる書籍「Enterprise Integration Patterns」に出てきます。
 
-# Process Manager
+> # Process Manager
 
-This section outlines our definition of the term **Process Manager**. 
-Before describing the **Process Manager** there is a 
-brief recap of how CQRS typically uses messages to communicate between 
-aggregates and bounded contexts. 
+# プロセスマネージャ
 
-## Messages and CQRS
+> This section outlines our definition of the term **Process Manager**. 
+> Before describing the **Process Manager** there is a 
+> brief recap of how CQRS typically uses messages to communicate between 
+> aggregates and bounded contexts. 
 
-When you implement the CQRS pattern, you typically think about two types 
-of message to exchange information within your system: commands and 
-events. 
+このセクションでは、**プロセスマネージャ** という用語の定義について概説します。
+**プロセスマネージャ** を説明する前に、CQRSが通常どのようにメッセージを使って集約間や境界づけられたコンテキスト間で通信するかについて、簡単に振り返ります。
 
-Commands are imperatives; they are requests for the system to 
-perform a task or action. For example, "book two places on conference X" 
-or "allocate speaker Y to room Z." Commands are usually processed just 
-once, by a single recipient.
+> ## Messages and CQRS
 
-Events are notifications; they inform interested parties that something 
-has happened. For example, "the payment was rejected" or "seat type X 
-was created." Notice how they use the past tense. Events are published 
-and may have multiple subscribers. 
+## メッセージとCQRS
+
+> When you implement the CQRS pattern, you typically think about two types 
+> of message to exchange information within your system: commands and 
+> events. 
+
+CQRSパターンによる実装では、通常、システム内でコマンドとイベントという2種類のメッセージを使って情報をやり取りします。
+
+> Commands are imperatives; they are requests for the system to 
+> perform a task or action. For example, "book two places on conference X" 
+> or "allocate speaker Y to room Z." Commands are usually processed just 
+> once, by a single recipient.
+
+コマンドはシステムにタスクやアクションを実行するように要求する命令です。
+例えば、「会議Xの2つの席を予約せよ」や「スピーカーYを部屋Zに割り当てよ」といった形です。
+コマンドは通常、1つの受信者が1度だけ処理します。
+
+> Events are notifications; they inform interested parties that something 
+> has happened. For example, "the payment was rejected" or "seat type X 
+> was created." Notice how they use the past tense. Events are published 
+> and may have multiple subscribers. 
+
+関係者に何かが起こったことを知らせる通知です。
+例えば、「支払いが拒否された」や「座席タイプXが作成された」といった形です。
+過去形を使って通知していることに注意してください。
+イベントが発行されると、複数の購読者がそれを購読する可能性があります。
 
 Typically, commands are sent within a bounded context. Events may have 
 subscribers in the same bounded context as where they are published, or 
