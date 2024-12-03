@@ -4,65 +4,101 @@
 
 # 参照 6: サーガ・パターンにおけるサーガ (チャプターのタイトル)
 
-**Process Managers, Coordinating Workflows, and Sagas**
+> **Process Managers, Coordinating Workflows, and Sagas**
 
-# Clarifying the terminology
+**プロセスマネージャ、ワークフローの調整、およびサーガ**
 
-The term **Saga** is commonly used in discussions of CQRS to refer to a 
-piece of code that coordinates and routes messages between bounded 
-contexts and aggregates. However, for the purposes of this guidance we 
-prefer to use the term **Process Manager** to 
-refer to this type of code artefact. There are two reasons for this: 
+> # Clarifying the terminology
 
-1. There is a well-known, pre-existing definition of the term **Saga**
-   that has a different meaning from the one generally understood in
-   relation to CQRS.
-2. The term **Process Manager** is a better description of the
-   role performed by this type of code artefact.
+# 用語の明確化
+
+> The term **Saga** is commonly used in discussions of CQRS to refer to a 
+> piece of code that coordinates and routes messages between bounded 
+> contexts and aggregates. However, for the purposes of this guidance we 
+> prefer to use the term **Process Manager** to 
+> refer to this type of code artefact. There are two reasons for this: 
+> 
+> 1. There is a well-known, pre-existing definition of the term **Saga**
+>    that has a different meaning from the one generally understood in
+>    relation to CQRS.
+> 2. The term **Process Manager** is a better description of the
+>    role performed by this type of code artefact.
+
+CQRSに関する議論の中で、境界づけられたコンテキスト間や集約間のメッセージを調整しルーティングするコードの部品を一般的に **サーガ** と呼ぶことがあります。
+しかし、このガイドにおいて、この種のコードには **プロセスマネージャ**という用語を使用することにしました。これには2つの理由があります。
    
-> **Make this a sidebar**
-> Although the term Saga is often used in the context of the CQRS
-> pattern, it has a pre-existing definition. We have chosen to use the
-> term process manager in this guidance to avoid confusion with this
-> pre-existing definition. 
+>> **Make this a sidebar**
+>> Although the term Saga is often used in the context of the CQRS
+>> pattern, it has a pre-existing definition. We have chosen to use the
+>> term process manager in this guidance to avoid confusion with this
+>> pre-existing definition. 
+
+> **ここはサイドバーにする**
+> サーガという用語はCQRSパターンの文脈でよく使われますが、
+> この用語にはもう決まっている明確な意味があります。このガイダンスでは、この既に決まっている意味との混同を避けるために、
+> プロセスマネージャという用語を使用することにしました。
+>
+>> The term saga, in relation to distributed systems, was originally
+>> defined in the paper [Sagas](sagapaper) by Hector Garcia-Molina and
+>> Kenneth Salem. This paper proposes a mechanism that it calls a saga as
+>> an alternative to using a distributed transaction for managing a
+>> long-running business process. The paper recognizes that business
+>> processes are often comprised of multiple steps, each one of which
+>> involves a transaction, and that overall consistency can be achieved
+>> by grouping these individual transactions into a distributed
+>> transaction. However, in long-running business processes, using
+>> distributed transactions can impact on the performance and concurrency
+>> of the system because of the locks that must be held for the duration
+>> of the distributed transaction. 
+>
+> サーガという用語は、Hector Garcia-MolinaとKenneth Salemによる分散システムに関する論文 [Sagas](sagapaper) で定義されたものに由来します。
+> この論文では、長期間にわたるビジネスプロセスを管理するための分散トランザクションの代わりとして、サーガというメカニズムを提案しています。 
+> この論文は、ビジネスプロセスがしばしばトランザクションを伴う複数のステップで構成されることを示し、
+> これらの個々のトランザクションを分散トランザクションにグループ化することで全体的な一貫性を実現できるという主張をしています。
+> しかし、長期間にわたるビジネスプロセスでは、分散トランザクションを使用することが、
+> 分散トランザクションの期間中に保持するロックによってシステムのパフォーマンスと並行性に影響を与える可能性があるとしています。
 > 
-> The term saga, in relation to distributed systems, was originally
-> defined in the paper [Sagas](sagapaper) by Hector Garcia-Molina and
-> Kenneth Salem. This paper proposes a mechanism that it calls a saga as
-> an alternative to using a distributed transaction for managing a
-> long-running business process. The paper recognizes that business
-> processes are often comprised of multiple steps, each one of which
-> involves a transaction, and that overall consistency can be achieved
-> by grouping these individual transactions into a distributed
-> transaction. However, in long-running business processes, using
-> distributed transactions can impact on the performance and concurrency
-> of the system because of the locks that must be held for the duration
-> of the distributed transaction. 
+>> The saga concept removes the need for a distributed transaction by
+>> ensuring that the transaction at each step of the business process has
+>> a defined compensating transaction. In this way, if the business
+>> process encounters an error condition and is unable to continue, it
+>> can execute the compensating transactions for the steps that have
+>> already completed. This undoes the work completed so far in the
+>> business process and maintains the consistency of the system. 
 > 
-> The saga concept removes the need for a distributed transaction by
-> ensuring that the transaction at each step of the business process has
-> a defined compensating transaction. In this way, if the business
-> process encounters an error condition and is unable to continue, it
-> can execute the compensating transactions for the steps that have
-> already completed. This undoes the work completed so far in the
-> business process and maintains the consistency of the system. 
+> サーガの概念を用いると、ビジネスプロセスの各ステップでトランザクションが定義された補償トランザクションを持つことによって、
+> 分散トランザクションの必要性を取り除きます。この方法により、ビジネスプロセスがエラー条件に遭遇して続行できない場合、
+> 既に完了したステップに対する補償トランザクションを実行します。
+> これにより、これまでに完了したビジネスプロセスの作業を元に戻し、システムの一貫性を維持します。
 
-Although we have chosen to use the term process manager, Sagas (as 
-defined in the [paper][sagapaper] by Hector Garcia-Molina and Kenneth 
-Salem) may still have a part to play in a system that implements the 
-CQRS pattern in some of its bounded contexts. Typically, you would 
-expect to see a process manager routing messages between aggregates 
-within a bounded context, and you would expect to see a saga managing a 
-long-running business process that spans multiple bounded contexts. 
+> Although we have chosen to use the term process manager, Sagas (as 
+> defined in the [paper][sagapaper] by Hector Garcia-Molina and Kenneth 
+> Salem) may still have a part to play in a system that implements the 
+> CQRS pattern in some of its bounded contexts. Typically, you would 
+> expect to see a process manager routing messages between aggregates 
+> within a bounded context, and you would expect to see a saga managing a 
+> long-running business process that spans multiple bounded contexts. 
 
-The following section describes what we mean by the term **Process 
-Manager**. This is the working definition we used during our CQRS 
-journey project. 
+このガイドでは、プロセスマネージャという用語を使用することにしましたが、CQRSパターンを実装するシステムにおいて、
+いくつかの境界づけられたコンテキストでサーガ（Hector Garcia-MolinaとKenneth Salemによる[論文][sagapaper]で定義されたもの）が依然として重要な役割を果たす可能性があります。
+例えば、プロセスマネージャが境界づけられたコンテキスト内の集約間のメッセージをルーティングする役割を担い、
+サーガが複数の境界づけられたコンテキストにまたがる長期間にわたるビジネスプロセスを管理する役割を担う、という形です。
 
-> **Note:** For a time the team developing the Reference Implementation
-> used the term **Coordinating Workflow** before settling on the term
-> **Process Manager**. This pattern is described in the book "Enterprise
-> Integration Patterns" by Gregor Hohpe and Bobby Woolf.
+> The following section describes what we mean by the term **Process 
+> Manager**. This is the working definition we used during our CQRS 
+> journey project. 
+
+次のセクションでは、**プロセスマネージャ**という用語の意味について説明します。
+これは、CQRSを巡るたびのプロジェクトで実際に使用した定義です。
+
+>> **Note:** For a time the team developing the Reference Implementation
+>> used the term **Coordinating Workflow** before settling on the term
+>> **Process Manager**. This pattern is described in the book "Enterprise
+>> Integration Patterns" by Gregor Hohpe and Bobby Woolf.
+
+> **注:** 一時期、リファレンス実装を開発していたチームは、**プロセスマネージャ**という用語を確定する前に、
+> **ワークフローの調整**という用語を使用していました。
+> このパターンは、Gregor HohpeとBobby Woolfによる書籍「Enterprise Integration Patterns」に出てきます。
 
 # Process Manager
 
