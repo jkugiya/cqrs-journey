@@ -625,86 +625,149 @@ UIのロジックがコマンドを送信する前に十分な席が利用可能
 
 3つのモデルすべてで、エンティティは入力チェックのために通信する必要がありますが、プロセスマネージャを使用した3番目のモデルは他の2つよりも複雑に見えます。
 
-## Transaction boundaries
+> ## Transaction boundaries
 
-An aggregate, in the DDD approach, represents a consistency boundary. 
-Therefore, the first model with two aggregates, and the third model with 
-two aggregates and a process manager will involve two transactions: one when the 
-system persists the new **Order** aggregate and one when the system 
-persists the updated **SeatsAvailability** aggregate.
+## トランザクション境界
 
-> **Note:** The term _consistency boundary_ refers to a boundary within
-> which you can assume that all the elements remain consistent with each other all the time.
+> An aggregate, in the DDD approach, represents a consistency boundary. 
+> Therefore, the first model with two aggregates, and the third model with 
+> two aggregates and a process manager will involve two transactions: one when the 
+> system persists the new **Order** aggregate and one when the system 
+> persists the updated **SeatsAvailability** aggregate.
 
-To ensure the consistency of the system when a registrant creates an 
-order, both transactions must succeed. To guarantee this, we must take 
-steps to ensure that the system is eventually consistent by ensuring 
-that the infrastructure reliably delivers messages to aggregates. 
+DDDにおいては、集約は一貫性の境界を表します。
+したがって、2つの集約を持つ最初のモデルと、2つの集約とプロセスマネージャを持つ3番目のモデルは、2つのトランザクションを必要とします。
+1つの境界ははシステムが新しい **注文** 集約を永続化するときで、もう1つはシステムが更新した **席利用** 集約を永続化するときです。
 
-In the second approach, which uses a single aggregate, we will only have a 
-single transaction when a registrant makes an order. This appears to be 
-the simplest approach of the three. 
+>> **Note:** The term _consistency boundary_ refers to a boundary within
+>> which you can assume that all the elements remain consistent with each other all the time.
 
-## Concurrency
+> **注:** _トランザクション境界_ という用語は、すべての要素が常に互いに一貫していると仮定できる境界を指します。
 
-The registration process takes place in a multi-user environment where many registrants could attempt to purchase seats simultaneously. The team decided to use the reservation pattern to address the concurrency issues in the registration process. In this scenario, this means that a registrant initially reserves seats (which are then unavailable to other registrants); if the registrant completes the payment within a timeout period, the system retains the reservation; otherwise the system cancels the reservation.
+> To ensure the consistency of the system when a registrant creates an 
+> order, both transactions must succeed. To guarantee this, we must take 
+> steps to ensure that the system is eventually consistent by ensuring 
+> that the infrastructure reliably delivers messages to aggregates. 
 
-This reservation system introduces the need for additional message types; for example, an event to report that a registrant has made a payment, or report that a timeout has occurred.
+登録者による注文作成時、システムの一貫性を確保するためには、両方のトランザクションが成功する必要があります。
+これを保証するためには、インフラストラクチャがメッセージを集約に確実に配信することで、システムが結果整合性を持つようにする必要があります。
 
-This timeout also requires the system to incorporate a timer somewhere 
-to track when reservations expire. 
+> In the second approach, which uses a single aggregate, we will only have a 
+> single transaction when a registrant makes an order. This appears to be 
+> the simplest approach of the three. 
 
-Modeling this complex behavior with sequences of messages and the 
-requirement for a timer is best done using a process manager. 
+1つの集約を使用する2番目のアプローチでは、登録者による注文作成時に1つのトランザクションのみが発生します。
+これは3つのアプローチの中で最もシンプルなアプローチのように見えます。
 
-## Aggregates and aggregate roots
+> ## Concurrency
 
-In the two models that have the **Order** aggregate and the **SeatsAvailability** aggregate, the team easily identified the entities that make up the aggregate, and the aggregate root. The choice is not so clear in the model with a single aggregate: it does not seem natural to access orders through a **SeatsAvailability** entity, or to access the seat availability through an **Order** entity. Creating a new entity to act as an aggregate root seems necessary.
+## 並行性
 
-The team decided on the model that incorporated a process manager because this 
-offers the best way to handle the concurrency requirements in this 
-bounded context. 
+> The registration process takes place in a multi-user environment where many registrants could attempt to purchase seats simultaneously. The team decided to use the reservation pattern to address the concurrency issues in the registration process. In this scenario, this means that a registrant initially reserves seats (which are then unavailable to other registrants); if the registrant completes the payment within a timeout period, the system retains the reservation; otherwise the system cancels the reservation.
 
-# Implementation details
+登録プロセスは沢山のユーザが存在する環境で行われるので、多くの登録者が同時に席を購入しようとする可能性があります。
+チームは、登録プロセスの並行性問題に対処するために予約パターンを使用することにしました。
+このシナリオでは、登録者は最初に席を予約し（その後他の登録者に利用できなくなります）、
+登録者がタイムアウト期間内に支払いを完了すると、システムは予約を確保します。そうでない場合、システムは予約をキャンセルします。
 
-This section describes some of the significant features of the orders 
-and registrations bounded context implementation. You may find it useful 
-to have a copy of the code so you can follow along. You can download it 
-from from the [Download center][downloadc], or check the evolution of 
-the code in the repository on github: 
-[mspnp/cqrs-journey-code][repourl]. 
+> This reservation system introduces the need for additional message types; for example, an event to report that a registrant has made a payment, or report that a timeout has occurred.
 
-> **Note:** Do not expect the code samples to match exactly the code in
-> the reference implementation. This chapter describes a step in the
-> CQRS journey, the implementation may well change as we learn more and
-> refactor the code.
+この予約システムは、追加のメッセージタイプが必要となります。例えば、登録者が支払いを行ったことを報告するイベント、またはタイムアウトが発生したことを報告するイベントです。
 
-## High-level architecture
+> This timeout also requires the system to incorporate a timer somewhere 
+> to track when reservations expire. 
 
-As we described in the previous section, the team initially decided to 
-implement the reservations story in the Conference Management System 
-using the CQRS pattern but without using event sourcing. Figure 5 shows 
-the key elements of the implementation: an MVC web application, a data 
-store implemented using a Windows Azure SQL Database instance, the read and write models, and 
-some infrastructure components. 
+このタイムアウトは、予約が期限切れになるタイミングを追跡するために、システムにタイマーを組み込む必要があります。
+
+> Modeling this complex behavior with sequences of messages and the 
+> requirement for a timer is best done using a process manager. 
+
+メッセージの順序やタイマーといった複雑な要件をモデリングする場合、プロセスマネージャを用いるのが最適です。
+
+> ## Aggregates and aggregate roots
+
+## 集約と集約ルート
+
+> In the two models that have the **Order** aggregate and the **SeatsAvailability** aggregate, the team easily identified the entities that make up the aggregate, and the aggregate root. The choice is not so clear in the model with a single aggregate: it does not seem natural to access orders through a **SeatsAvailability** entity, or to access the seat availability through an **Order** entity. Creating a new entity to act as an aggregate root seems necessary.
+
+**注文** 集約と **席予約** 集約を持つ2つのモデルでは、チームは集約を構成するエンティティと集約ルートを簡単に特定できました。
+1つの集約を持つモデルでは、注文を **席利用** エンティティを介して行ったり、席の予約を **注文** エンティティを介して行うことは自然ではないように見えます。
+集約ルートとして機能する新しいエンティティを作成する必要がありそうです。
+
+> The team decided on the model that incorporated a process manager because this 
+> offers the best way to handle the concurrency requirements in this 
+> bounded context. 
+
+チームは、この境界付けられたコンテキストでの並行性要件を最適な方法を提供するため、プロセスマネージャを組み込んだモデルを選択しました。
+
+> # Implementation details
+
+# 実装の詳細
+
+> This section describes some of the significant features of the orders 
+> and registrations bounded context implementation. You may find it useful 
+> to have a copy of the code so you can follow along. You can download it 
+> from from the [Download center][downloadc], or check the evolution of 
+> the code in the repository on github: 
+> [mspnp/cqrs-journey-code][repourl]. 
+
+このセクションでは、注文と登録の境界付けられたコンテキストの実装のいくつかの重要な機能について説明します。
+コードを見ながら進めると理解しやすいかもしれません。コードは[ダウンロードセンター][downloadc]からダウンロードするか、
+githubのリポジトリ [mspnp/cqrs-journey-code][repourl] でコードの進化を確認できます。
+
+>> **Note:** Do not expect the code samples to match exactly the code in
+>> the reference implementation. This chapter describes a step in the
+>> CQRS journey, the implementation may well change as we learn more and
+>> refactor the code.
+
+> **注:** コードサンプルが参照実装のコードと完全に一致することは期待しないでください。
+> この章はCQRSを巡る旅の一歩を説明しており、コードはより多くのことを学び、コードをリファクタリングしていくにつれて変更する可能性があります。
+
+> ## High-level architecture
+
+## 高レベルのアーキテクチャ
+
+> As we described in the previous section, the team initially decided to 
+> implement the reservations story in the Conference Management System 
+> using the CQRS pattern but without using event sourcing. Figure 5 shows 
+> the key elements of the implementation: an MVC web application, a data 
+> store implemented using a Windows Azure SQL Database instance, the read and write models, and 
+> some infrastructure components. 
+
+前のセクションで説明したように、チームはまずはイベントソーシングを使用せずにCQRSパターンを適用したカンファレンス管理システムの予約ストーリーを実装することにしました。
+図5は実装の主要な要素を示しており、MVC Webアプリケーション、Windows Azure SQL Databaseインスタンスを使用したデータストア、
+リードモデル、ライトモデル、およびいくつかのインフラストラクチャコンポーネントが含まれています。
 
 > **Note:** We'll describe what goes on inside the read and write models 
 > later in this section. 
 
+**注:** リードモデルとライトモデルの内部で何が行われるかについては、このセクションの後で説明します。
+
+<!--
 ![Figure 5][fig5]
+-->
+![図5][fig5]
 
-**High-level architecture of the registrations bounded context**
+> **High-level architecture of the registrations bounded context**
 
-The following sections relate to the numbers in Figure 5 and provide 
-more detail about these elements of the architecture. 
+**登録の境界付けられたコンテキストにおける高レベルアーキテクチャ**
 
-### 1. Querying the read model
+> The following sections relate to the numbers in Figure 5 and provide 
+> more detail about these elements of the architecture. 
 
-The **ConferenceController** class includes an action named **Display** 
-that creates a view that contains information about a particular 
-conference. This controller class queries the read model using the 
-following code: 
+以下のセクションの番号は図5と対応していて、アーキテクチャのこれらの要素について詳細を提供します。
 
+> ### 1. Querying the read model
+
+### 1. リードモデルへのクエリ
+
+> The **ConferenceController** class includes an action named **Display** 
+> that creates a view that contains information about a particular 
+> conference. This controller class queries the read model using the 
+> following code: 
+
+**ConferenceController** クラスには、特定のカンファレンスに関する情報を含むビューを作成する **Display** というアクションがあります。
+このコントローラクラスは、以下のコードを使用してリードモデルにクエリを発行します。
 
 ```Cs
 public ActionResult Display(string conferenceCode)
@@ -729,25 +792,40 @@ private Conference.Web.Public.Models.Conference GetConference(string conferenceC
 }
 ```
 
-The read model retrieves the information from the data store and returns 
-it to the controller using a Data Transfer Object (DTO) class. 
+> The read model retrieves the information from the data store and returns 
+> it to the controller using a Data Transfer Object (DTO) class. 
 
-### 2. Issuing Commands
+リードモデルはデータストアから情報を取得し、データ転送オブジェクト(DTO)クラスを使用してコントローラに返します。
 
-The web application sends commands to the write model through a command 
-bus. This command bus is an infrastructure element that provides 
-reliable messaging. In this scenario, the bus delivers messages 
-asynchronously and once only to a single recipient.
+> ### 2. Issuing Commands
 
-The **RegistrationController** class can send a **RegisterToConference** 
-command to the write model in response to user interaction. This command 
-sends a request to register one or more seats at the conference. The 
-**RegistrationController** class then polls the read model to discover 
-whether the registration request succeeded. See the section "6. Polling 
-the Read Model" below for more details.
+### 2. コマンドの発行
 
-The following code sample shows how the **RegistrationController** sends
-a **RegisterToConference** command:
+> The web application sends commands to the write model through a command 
+> bus. This command bus is an infrastructure element that provides 
+> reliable messaging. In this scenario, the bus delivers messages 
+> asynchronously and once only to a single recipient.
+
+Webアプリケーションはコマンドバスを介してライトモデルにコマンドを送信します。
+コマンドバスというのは、信頼性のあるメッセージングを提供するインフラストラクチャ要素です。
+このシナリオでは、コマンドバスはメッセージを非同期で、かつ一度だけ、単一の受信者に配信します。
+
+> The **RegistrationController** class can send a **RegisterToConference** 
+> command to the write model in response to user interaction. This command 
+> sends a request to register one or more seats at the conference. The 
+> **RegistrationController** class then polls the read model to discover 
+> whether the registration request succeeded. See the section "6. Polling 
+> the Read Model" below for more details.
+
+ユーザの操作に応じて、**RegistrationController** クラスは **RegisterToConference** コマンドをライトモデルに送信できます。
+このコマンドは、カンファレンスで1つ以上の席を登録するためのリクエストを送信します。
+その後、**RegistrationController** クラスはリードモデルをポーリングして、登録リクエストが成功したかどうかを確認します。
+詳細については、以下の「6. リードモデルのポーリング」セクションを参照してください。
+
+> The following code sample shows how the **RegistrationController** sends
+> a **RegisterToConference** command:
+
+以下のコードサンプルでは、**RegistrationController** が **RegisterToConference** コマンドを送信しています。
 
 ```Cs
 var viewModel = this.UpdateViewModel(conferenceCode, contentModel);
@@ -763,21 +841,32 @@ var command =
 this.commandBus.Send(command);
 ```
 
-> **Note:** All of the commands are sent asynchronously and do not 
-expect return values. 
+>> **Note:** All of the commands are sent asynchronously and do not 
+> expect return values. 
 
-### 3. Handling Commands
+**注:** すべてのコマンドは非同期で送信され、戻り値を期待しません。
 
-Command handlers register with the command bus; the command bus can then 
-forward commands to the correct handler. 
+> ### 3. Handling Commands
 
-The **OrderCommandHandler** class handles the **RegisterToConference** 
-command sent from the UI. Typically, the handler is responsible for 
-initiating any business logic in the domain and for persisting any state 
-changes to the data store. 
+### 3. コマンドの処理
 
-The following code sample shows how the **OrderCommandHandler** 
-class handles the **RegisterToConference** command: 
+> Command handlers register with the command bus; the command bus can then 
+> forward commands to the correct handler. 
+
+コマンドハンドラをコマンドバスに登録すると、コマンドバスがコマンドを正しいハンドラに転送します。
+
+> The **OrderCommandHandler** class handles the **RegisterToConference** 
+> command sent from the UI. Typically, the handler is responsible for 
+> initiating any business logic in the domain and for persisting any state 
+> changes to the data store. 
+
+**OrderCommandHandler**は、UIから送信された **RegisterToConference** コマンドを処理するクラスです。
+通常、ハンドラにはドメイン内のビジネスロジックを開始し、データストアに状態変更を永続化する責任があります。
+
+> The following code sample shows how the **OrderCommandHandler** 
+> class handles the **RegisterToConference** command: 
+
+以下のコードサンプルでは、**OrderCommandHandler** クラスが **RegisterToConference** コマンドを処理しています。
 
 ```Cs
 public void Handle(RegisterToConference command)
@@ -795,35 +884,55 @@ public void Handle(RegisterToConference command)
 }
 ```
 
-### 4. Initiating business logic in the domain
+> ### 4. Initiating business logic in the domain
 
-In the previous code sample, the **OrderCommandHandler** class 
-creates a new **Order** instance. The **Order** entity is an aggregate 
-root, and its constructor contains code to initiate the domain logic. 
-See the section "Inside the Write Model" below for more details of what 
-actions this aggregate root performs. 
+### 4. ドメイン内のビジネスロジックの初期化
 
-### 5. Persisting the changes
+> In the previous code sample, the **OrderCommandHandler** class 
+> creates a new **Order** instance. The **Order** entity is an aggregate 
+> root, and its constructor contains code to initiate the domain logic. 
+> See the section "Inside the Write Model" below for more details of what 
+> actions this aggregate root performs. 
 
-In the previous code sample, the handler persists the new **Order** 
-aggregate by calling the **Save** method in the repository class. This 
-**Save** method also publishes any events raised by the **Order** 
-aggregate on the command bus. 
+前のコードサンプルでは、**OrderCommandHandler** クラスが新しい **Order** インスタンスを作成しています。
+**Order** エンティティは集約ルートであり、そのコンストラクタにはドメインロジックを初期化するコードが含まれています。
+この集約ルートがどのようなアクションを実行するかの詳細については、以下の「ライトモデルの詳細」セクションを参照してください。
 
-### 6. Polling the read model
+> ### 5. Persisting the changes
 
-To provide feedback to the user, the UI must have a way to check whether 
-the **RegisterToConference** command succeeded. Like all commands in the 
-system, this command executes asynchronously and does not return a 
-result. The UI queries the read model to check whether the 
-command succeeded. 
+### 5. 変更の永続化
 
-The following code sample shows the initial implementation where the 
-**RegistrationController** class polls the read model until either the 
-system creates the order or a timeout occurs. The **WaitUntilUpdated**
-method polls the read-model until it finds either that the order has
-been persisted or it times out.
+> In the previous code sample, the handler persists the new **Order** 
+> aggregate by calling the **Save** method in the repository class. This 
+> **Save** method also publishes any events raised by the **Order** 
+> aggregate on the command bus. 
 
+前のコードサンプルでは、ハンドラはリポジトリクラスの **Save** メソッドを呼び出すことで新しい **Order** 集約を永続化しています。
+この **Save** メソッドは、**Order** 集約が発行したイベントをコマンドバスにも公開します。
+
+> ### 6. Polling the read model
+
+### 6. リードモデルのポーリング
+
+> To provide feedback to the user, the UI must have a way to check whether 
+> the **RegisterToConference** command succeeded. Like all commands in the 
+> system, this command executes asynchronously and does not return a 
+> result. The UI queries the read model to check whether the 
+> command succeeded. 
+
+ユーザにフィードバックを提供するためには、UIが **RegisterToConference** コマンドが成功したかどうかを確認する方法を持つことが必要です。
+コマンドはシステム内のすべてのコマンドと同様に非同期で実行され、結果を返しません。
+したがって、UIはリードモデルにクエリを発行して、コマンドが成功したかどうかを確認します。
+
+> The following code sample shows the initial implementation where the 
+> **RegistrationController** class polls the read model until either the 
+> system creates the order or a timeout occurs. The **WaitUntilUpdated**
+> method polls the read-model until it finds either that the order has
+> been persisted or it times out.
+
+以下のコードサンプルでは、**RegistrationController** クラスがリードモデルをポーリングして、
+システムが注文を作成するか、タイムアウトが発生するまで待機しています。
+**WaitUntilUpdated** メソッドで、注文が永続化されるか、タイムアウトするまでリードモデルをポーリングします。
 
 ```Cs
 [HttpPost]
@@ -851,13 +960,18 @@ public ActionResult StartRegistration(string conferenceCode, OrderViewModel cont
 }
 ```
 
-The team later replaced this mechanism for checking whether the system 
-saves the order with an implementation of the Post-Redirect-Get pattern. 
-The following code sample shows the new version of the 
-**StartRegistration** action method.
+> The team later replaced this mechanism for checking whether the system 
+> saves the order with an implementation of the Post-Redirect-Get pattern. 
+> The following code sample shows the new version of the 
+> **StartRegistration** action method.
 
-> **Note:** For more information about the Post-Redirect-Get pattern see
-> the article [Post/Redirect/Get][prg] on Wikipedia.
+その後、チームは、システムが注文を保存したかどうかを確認するメカニズムを、Post-Redirect-Getパターンの実装に置き換えました。
+以下のコードサンプルは、**StartRegistration** アクションメソッドの新しいバージョンです。
+
+>> **Note:** For more information about the Post-Redirect-Get pattern see
+>> the article [Post/Redirect/Get][prg] on Wikipedia.
+
+**注:** Post-Redirect-Getパターンについての詳細は、Wikipediaの記事 [Post/Redirect/Get][prg] を参照してください。
 
 ```Cs
 [HttpPost]
@@ -871,10 +985,13 @@ public ActionResult StartRegistration(string conferenceCode, OrderViewModel cont
 }
 ```
 
-The action method now redirects to the **SpecifyRegistrantDetails** view 
-immediately after it sends the command. The following code sample shows 
-how the **SpecifyRegistrantDetails** action polls for the order in the 
-repository before returning a view. 
+> The action method now redirects to the **SpecifyRegistrantDetails** view 
+> immediately after it sends the command. The following code sample shows 
+> how the **SpecifyRegistrantDetails** action polls for the order in the 
+> repository before returning a view. 
+
+アクションメソッドは、コマンドを送信した直後にすぐに **SpecifyRegistrantDetails** ビューにリダイレクトします。
+以下のコードサンプルでは、ビューを返す前に **SpecifyRegistrantDetails** アクションがリポジトリで注文をポーリングしています。
 
 ```Cs
 [HttpGet]
@@ -886,17 +1003,27 @@ public ActionResult SpecifyRegistrantDetails(string conferenceCode, Guid orderId
 }
 ```
 
-The advantages of this second approach, using the Post-Redirect-Get 
-pattern instead of in the **StartRegistration** post action are that it 
-works better with the browser's forward and back navigation buttons, and 
-that it gives the infrastructure more time to process the command before 
-the MVC controller starts polling. 
+> The advantages of this second approach, using the Post-Redirect-Get 
+> pattern instead of in the **StartRegistration** post action are that it 
+> works better with the browser's forward and back navigation buttons, and 
+> that it gives the infrastructure more time to process the command before 
+> the MVC controller starts polling. 
 
-## Inside the write model
+**StartRegistration** ポストアクションではなく、Post-Redirect-Getパターンを使用するこの2番目のアプローチの利点は、
+ブラウザの進むボタンと戻るボタンとの互換性が向上し、MVCコントローラがポーリングを開始する前にインフラストラクチャにコマンドを処理する時間を与えられることです。
 
-### Aggregates
 
-The following code sample shows the **Order** aggregate.
+> ## Inside the write model
+
+## ライトモデルの詳細
+
+> ### Aggregates
+
+### 集約
+
+> The following code sample shows the **Order** aggregate.
+
+以下は **Order** 集約のサンプルです。
 
 ```Cs
 public class Order : IAggregateRoot, IEventPublisher
@@ -946,68 +1073,115 @@ public class Order : IAggregateRoot, IEventPublisher
 }
 ```
 
-Notice how the properties of the class are not virtual. In the original 
-version of this class, the properties **Id**, **UserId**, 
-**ConferenceId**, and **State** were all marked as virtual. The 
-following conversation between two developers explores this decision. 
+> Notice how the properties of the class are not virtual. In the original 
+> version of this class, the properties **Id**, **UserId**, 
+> **ConferenceId**, and **State** were all marked as virtual. The 
+> following conversation between two developers explores this decision. 
 
-> *Developer 1:* I'm really convinced you should not make the 
-> property virtual, except if required by the object-relational mapping (ORM) layer. If this is just for 
-> testing purposes, entities and aggregate roots should never be tested 
-> using mocking. If you need mocking to test your entities, this is a 
-> clear smell that something is wrong in the design. 
+クラスのプロパティがvirtualではないことに注意してください。
+このクラスの元のバージョンでは、プロパティ **Id**、**UserId**、**ConferenceId**、**State** がすべてvirtualとしてマークされていました。
+以下の会話は、この決定について2人の開発者が探求しているものです。
 
-> *Developer 2:* I prefer to be open and extensible by default. You 
-> never know what needs may arise in the future, and making things 
-> virtual is hardly a cost. This is certainly controversial and a bit 
-> non-standard in .NET, but I think it's OK. We may only need virtuals 
-> on lazy-loaded collections. 
+>> *Developer 1:* I'm really convinced you should not make the 
+>> property virtual, except if required by the object-relational mapping (ORM) layer. If this is just for 
+>> testing purposes, entities and aggregate roots should never be tested 
+>> using mocking. If you need mocking to test your entities, this is a 
+>> clear smell that something is wrong in the design. 
 
-> *Developer 1:* Since CQRS usually makes the need for lazy load 
-> vanish, you should not need it either. This leads to even simpler code. 
+> *開発者1: * 私は、オブジェクトリレーショナルマッピング(ORM)レイヤーによって必要とされていない限り、プロパティをvirtualにするべきではないと思います。
+> テスト目的かもしれませんが、エンティティや集約ルートモックを使用してテストすべきではありません。
+> エンティティをテストするためにモックが必要なのは、明確なテストスメルで、設計に何か問題があります。
 
-> *Developer 2:* CQRS does not dictate usage of event sourcing (ES), so if you're 
-> using an aggregate root that contains an object graph, you'd need that 
-> anyway, right? 
+>> *Developer 2:* I prefer to be open and extensible by default. You 
+>> never know what needs may arise in the future, and making things 
+>> virtual is hardly a cost. This is certainly controversial and a bit 
+>> non-standard in .NET, but I think it's OK. We may only need virtuals 
+>> on lazy-loaded collections. 
 
-> *Developer 1:* This is not about ES, it's about DDD. When your 
-> aggregate boundaries are right, you don't need delay loading. 
+> *開発者2: * 私は、デフォルトでオープンで拡張可能である方が好みです。
+> 将来どのようなニーズが発生するかはわかりませんし、virtualにすることはほとんどコストがかかりません。
+> これは確かに議論の余地があり、.NET において少し非標準的ですが、私は大丈夫だと思います。
+> 遅延ロードされたコレクションだけでvirtualが必要になるかもしれません。
 
-> *Developer 2:* To be clear, the aggregate boundary is here to group 
-> things that should change together for reasons of consistency. A lazy 
-> load would indicate that things that have been grouped together don't 
-> really need this grouping.
+>> *Developer 1:* Since CQRS usually makes the need for lazy load 
+>> vanish, you should not need it either. This leads to even simpler code. 
 
-> *Developer 1:* I agree. I have found that lazy-loading in the 
-> command side means I have it modeled wrong. If I don't need the value 
-> in the command side, then it shouldn't be there. In addition, I 
-> dislike virtuals unless they have an intended purpose (or some 
-> artificial requirement from an object-relational mapping (ORM) tool). In my opinion, it violates the 
-> Open-Closed principle: you have opened yourself up for modification in 
-> a variety of ways that may or may not be intended and where the 
-> repercussions might not be immediately discoverable, if at all. 
+> *開発者1: * CQRSは通常、遅延ロードの必要性をなくすので、それも必要ないはずです。
+> virtual を無くすことで、さらにシンプルなコードになります。
 
-> *Developer 2:* Our **Order** aggregate in the model has a list of 
-> **Order Items**. Surely we don't need to load the lines to mark it as 
-> Booked? Do we have it modeled wrong there? 
+>> *Developer 2:* CQRS does not dictate usage of event sourcing (ES), so if you're 
+>> using an aggregate root that contains an object graph, you'd need that 
+>> anyway, right? 
 
-> *Developer 1:* Is the list of **Order Items** that long? If it is, 
-> the modeling may be wrong because you don't necessarily need 
-> transactionality at that level. Often, doing a late round trip to get 
-> and updated **Order Items** can be more costly that loading them 
-> up front: you should evaluate the usual size of the collection and do 
-> some performance measurement. Make it simple first, optimize if 
-> needed. 
+> *開発者2: * CQRSでは必ずしもイベントソーシング(ES)を行うわけではないので、オブジェクトグラフを含む集約ルートを使用している場合、
+> 遅延ロードが必要になるのでは？
+
+>> *Developer 1:* This is not about ES, it's about DDD. When your 
+>> aggregate boundaries are right, you don't need delay loading. 
+
+> *開発者1: * これはESの話ではなく、DDDの話です。
+> 集約の境界を正しく設計すれば、遅延ロードは必要ありません。
+
+>> *Developer 2:* To be clear, the aggregate boundary is here to group 
+>> things that should change together for reasons of consistency. A lazy 
+>> load would indicate that things that have been grouped together don't 
+>> really need this grouping.
+
+> *開発者2: * あなたが言いたいことは、集約の境界はというのは、一貫性のために一緒に変更するべきものをグループ化したもので、
+> 遅延ロードが必要ということは、グループ化したものが実際にはこのグループ化を必要としていないことを示している、ということですね？
+
+>> *Developer 1:* I agree. I have found that lazy-loading in the 
+>> command side means I have it modeled wrong. If I don't need the value 
+>> in the command side, then it shouldn't be there. In addition, I 
+>> dislike virtuals unless they have an intended purpose (or some 
+>> artificial requirement from an object-relational mapping (ORM) tool). In my opinion, it violates the 
+>> Open-Closed principle: you have opened yourself up for modification in 
+>> a variety of ways that may or may not be intended and where the 
+>> repercussions might not be immediately discoverable, if at all. 
+
+> *開発者1: * そういうことです。コマンドサイドでの遅延ロードは、モデルが間違っていることを示していると考えています。
+> コマンドサイドで必要ない値は、その集約に含むべきではありません。
+> また、意図した目的（またはオブジェクトリレーショナルマッピング(ORM)ツールからの人工的な要件）がない限り、私はvirtualを使うことを好まないです。
+> これはオープン・クローズドの原則に違反していると思います。意図しない変更の可能性があり、その影響がすぐにはわからない場合があるため、
+> あらゆる方法で変更を受け入れるように自分自身を開放してしまっているからです。
+
+>> *Developer 2:* Our **Order** aggregate in the model has a list of 
+>> **Order Items**. Surely we don't need to load the lines to mark it as 
+>> Booked? Do we have it modeled wrong there? 
+
+> *開発者2: * モデルの **Order** 集約には **Order Items** のリストがあります。
+> それを Booked(予約済) としてマークするためにロードする必要はないでしょうか？
+
+>> *Developer 1:* Is the list of **Order Items** that long? If it is, 
+>> the modeling may be wrong because you don't necessarily need 
+>> transactionality at that level. Often, doing a late round trip to get 
+>> and updated **Order Items** can be more costly that loading them 
+>> up front: you should evaluate the usual size of the collection and do 
+>> some performance measurement. Make it simple first, optimize if 
+>> needed. 
+
+> *開発者1: * **Order Items** のリストはそんなに大きなものになるでしょうか？もしそうなら、モデリングが間違っているかもしれません。
+> そのレベルでトランザクション性が必要とは限らないからです。
+> **Order Items** を取得してから更新するという遅いラウンドトリップは、あらかじめロードするよりもコストがかかることがよくあります。
+> コレクションの通常のサイズを評価し、パフォーマンス測定を行うべきです。
+> まずは単純にしておき、最適化は必要に応じて行いましょう。
 
 > &mdash; *Thanks to J&eacute;r&eacute;mie Chassaing and Craig Wilson*
 
-### Aggregates and process managers
 
-Figure 6 shows the entities that exist in the write-side model. There 
-are two aggregates, **Order** and **SeatsAvailability**, each 
-one containing multiple entity types. Also there is a 
-**RegistrationProcessManager** class to manage the interaction between the
-aggregates. 
+
+> ### Aggregates and process managers
+
+### 集約とプロセスマネージャ
+
+> Figure 6 shows the entities that exist in the write-side model. There 
+> are two aggregates, **Order** and **SeatsAvailability**, each 
+> one containing multiple entity types. Also there is a 
+> **RegistrationProcessManager** class to manage the interaction between the
+> aggregates. 
+
+図6は、ライトサイドモデルのエンティティです。
+**Order** と **SeatsAvailability** という2つの集約は、それぞれ複数のエンティティを含んでいます。
 
 The table in the Figure 6 shows how the process manager behaves given a current 
 state and a particular type of incoming message. 
