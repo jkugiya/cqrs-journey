@@ -1183,20 +1183,29 @@ public class Order : IAggregateRoot, IEventPublisher
 図6は、ライトサイドモデルのエンティティです。
 **Order** と **SeatsAvailability** という2つの集約は、それぞれ複数のエンティティを含んでいます。
 
-The table in the Figure 6 shows how the process manager behaves given a current 
-state and a particular type of incoming message. 
+> The table in the Figure 6 shows how the process manager behaves given a current 
+> state and a particular type of incoming message. 
 
+図6の表は、現在の状態と受信したメッセージの種類に応じて、プロせずマネージャがどのように振る舞うかを示しています。
+
+<!--
 ![Figure 6][fig6]
+-->
+![図6][fig6]
 
-**Domain objects in the write model**
+> **Domain objects in the write model**
 
-The process of registering for a conference begins when the UI sends a 
-**RegisterToConference** command. The infrastructure delivers this 
-command to the **Order** aggregate. The result of this command is that 
-the system creates a new **Order** instance, and that the new **Order** 
-instance raises an **OrderPlaced** event. The following code sample from 
-the constructor in the **Order** class shows this happening. Notice how 
-the system uses GUIDs to identify the different entities. 
+**ライトモデルのドメインオブジェクト**
+
+> The process of registering for a conference begins when the UI sends a 
+> **RegisterToConference** command. The infrastructure delivers this 
+> command to the **Order** aggregate. The result of this command is that 
+> the system creates a new **Order** instance, and that the new **Order** 
+> instance raises an **OrderPlaced** event. The following code sample from 
+> the constructor in the **Order** class shows this happening. Notice how 
+> the system uses GUIDs to identify the different entities. 
+
+UIが **RegisterToConference** コマンドを送信すると、カンファレンスへの登録プロセスが開始します。
 
 ```Cs
 public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> items)
@@ -1217,12 +1226,17 @@ public Order(Guid id, Guid userId, Guid conferenceId, IEnumerable<OrderItem> ite
 }
 ```
 
-> **Note:** To see how the infrastructure elements deliver commands and
-  events, see Figure 7.
+>> **Note:** To see how the infrastructure elements deliver commands and
+>  events, see Figure 7.
 
-The system creates a new **RegistrationProcessManager** instance to manage the 
-new order. The following code sample from the **RegistrationProcessManager** 
-class shows how the process manager handles the event. 
+**注:** インフラストラクチャ要素がどのようにコマンドとイベントを配信するかについては、図7を参照してください。
+
+> The system creates a new **RegistrationProcessManager** instance to manage the 
+> new order. The following code sample from the **RegistrationProcessManager** 
+> class shows how the process manager handles the event. 
+
+システムは新しい **RegistrationProcessManager** インスタンスを作成して、新しい注文を管理します。
+次は **RegistrationProcessManager** クラスのサンプルコードで、プロセスマネージャがイベントを処理する方法を示しています。
 
 ```Cs
 public void Handle(OrderPlaced message)
@@ -1248,13 +1262,18 @@ public void Handle(OrderPlaced message)
 }
 ```
 
-The code sample shows how the process manager changes its state and sends a new 
-**MakeSeatReservation** command that the 
-**SeatsAvailability** aggregate handles. The code sample also 
-illustrates how the process manager is implemented as a state machine that receives 
-messages, changes its state, and sends new messages. 
+> The code sample shows how the process manager changes its state and sends a new 
+> **MakeSeatReservation** command that the 
+> **SeatsAvailability** aggregate handles. The code sample also 
+> illustrates how the process manager is implemented as a state machine that receives 
+> messages, changes its state, and sends new messages. 
 
-> **MarkusPersona:** Notice how we generate a new globally unique identifier (GUID) to identify the new reservation. We use these GUIDs to correlate messages to the correct process manager and aggregate instances.
+このサンプルコードでは、プロセスマネージャが状態を変更し、**SeatsAvailability** 集約が処理する新しい **MakeSeatReservation** コマンドを送信しています。
+このプロセスマネージャは、メッセージを受け取って状態を変更し、新しいメッセージを送信するステートマシンとして実装されています。
+
+>> **MarkusPersona:** Notice how we generate a new globally unique identifier (GUID) to identify the new reservation. We use these GUIDs to correlate messages to the correct process manager and aggregate instances.
+
+> **Markusのペルソナ:** 新しい予約を識別するために新しいグローバルユニーク識別子(GUID)を生成していることに注意してください。
 
 When the **SeatsAvailability** aggregate receives a 
 **MakeReservation** command, it makes a reservation if there are enough 
