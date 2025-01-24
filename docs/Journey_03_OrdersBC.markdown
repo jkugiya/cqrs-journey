@@ -1385,27 +1385,42 @@ public void Handle(ReservationRejected message)
 **Janaのペルソナ:** この章のコードサンプルは、カンファレンス管理システムの初期バージョンです。
 次の章では、チームがドメインを探求し、CQRSパターンについてより多くのことを学ぶことで、設計と実装の進化にどのように影響をもたらすかを示します。
 
-### Infrastructure
+> ### Infrastructure
 
-The sequence diagram in Figure 7 shows how the infrastructure elements 
-interact with the domain objects to deliver messages. 
+### インフラストラクチャ
+
+> The sequence diagram in Figure 7 shows how the infrastructure elements 
+> interact with the domain objects to deliver messages. 
+
+図7のシーケンス図は、インフラストラクチャ要素がメッセージを配信するためにドメインオブジェクトとどのようにやり取りするかを示しています。
 
 ![Figure 7][fig7]
 
-**Infrastructure sequence diagram**
+> **Infrastructure sequence diagram**
 
-A typical interaction begins when an MVC controller in the UI sends a 
-message using the command bus. The message sender invokes the **Send** 
-method on the command bus asynchronously. The command bus then stores 
-the message until the message recipient retrieves the message and 
-forwards it to the appropriate handler. The system includes a number of 
-command handlers that register with the command bus to handle specific 
-types of commands. For example, the **OrderCommandHandler** class defines 
-handler methods for the **RegisterToConference**, **MarkOrderAsBooked**, 
-and **RejectOrder** commands. The following code sample shows the 
-handler method for the **MarkOrderAsBooked** command. Handler methods 
-are responsible for locating the correct aggregate instance, calling 
-methods on that instance, and then saving that instance. 
+**インフラストラクチャシーケンス図**
+
+> A typical interaction begins when an MVC controller in the UI sends a 
+> message using the command bus. The message sender invokes the **Send** 
+> method on the command bus asynchronously. The command bus then stores 
+> the message until the message recipient retrieves the message and 
+> forwards it to the appropriate handler. The system includes a number of 
+> command handlers that register with the command bus to handle specific 
+> types of commands. For example, the **OrderCommandHandler** class defines 
+> handler methods for the **RegisterToConference**, **MarkOrderAsBooked**, 
+> and **RejectOrder** commands. The following code sample shows the 
+> handler method for the **MarkOrderAsBooked** command. Handler methods 
+> are responsible for locating the correct aggregate instance, calling 
+> methods on that instance, and then saving that instance. 
+
+典型的な対話は、UIのMVCコントローラがコマンドバスを通じてメッセージを送信して始まります。
+メッセージ送信者(UI)は、コマンドバスの **Send** メソッドを非同期で呼び出します。
+その後、コマンドバスは、メッセージ受信者がメッセージを取得して適切なハンドラに転送するまでメッセージを保持します。
+システムには、特定のコマンドを処理する沢山のコマンドハンドラがあり、それらはコマンドバスに登録されています。
+たとえば、**OrderCommandHandler** クラスは、**RegisterToConference**、**MarkOrderAsBooked**、**RejectOrder** といったコマンドのためのハンドラメソッドを持ちます。
+次のサンプルコードは、**MarkOrderAsBooked** コマンドのハンドラメソッドです。
+このハンドラメソッドの責務は、正しい集約インスタンスを見つけ、そのインスタンスのメソッドを呼び出し、そのインスタンスを保存することです。
+
 
 ```Cs
 public void Handle(MarkOrderAsBooked command)
