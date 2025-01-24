@@ -441,7 +441,7 @@ SQL Server Expressで実装されたシンプルなメッセージング基盤�
 >> **MarkusPersona:** The term rehydration refers to the process of
 >> deserializing the aggregate instance from a data store.
 > 
-> **Markusのペルソナ** 再構築という用語はデータストアから集約のインスタンスをデシリアライズすることです。
+> **Markusのペルソナ** 再構築という用語の意味は、データストアから集約のインスタンスをデシリアライズすることです。
 > 
 >> **JanaPersona:** You could consider using the [Memento
 >> pattern][memento] to handle the persistence and rehydration.
@@ -449,14 +449,16 @@ SQL Server Expressで実装されたシンプルなメッセージング基盤�
 > **Janaのペルソナ** 永続化と再構築の処理は [メメントパターン][memento] を使うといいかもしれません
 > 
 
-The second approach considered by the team, shown in Figure 3, uses a 
+> The second approach considered by the team, shown in Figure 3, uses a 
 single aggregate in place of two. 
+
+チームが考えた2番目のアプローチは、図3に示すように、2つの集約ではなく、1つの集約を使用します。
 
 ![Figure 3][fig3]
 
 > **Approach 2: A single aggregate**
 
-** アプローチ2: 1つの集約**
+**アプローチ2: 1つの集約**
 
 > The numbers in the diagram correspond to the following steps:
 > 
@@ -1275,11 +1277,15 @@ public void Handle(OrderPlaced message)
 
 > **Markusのペルソナ:** 新しい予約を識別するために新しいグローバルユニーク識別子(GUID)を生成していることに注意してください。
 
-When the **SeatsAvailability** aggregate receives a 
+> When the **SeatsAvailability** aggregate receives a 
 **MakeReservation** command, it makes a reservation if there are enough 
 available seats. The following code sample shows how the 
 **SeatsAvailability** class raises different events depending 
 on whether or not there are sufficient seats. 
+
+**SeatsAvailability** 集約は **MakeReservation** コマンドを受け取ると、利用可能な席があれば予約を行います。
+次のサンプルコードでは、**SeatsAvailability** クラスが利用可能な席があるかどうかに応じて異なるイベントを発生させています。
+
 
 ```Cs
 public void MakeReservation(Guid reservationId, int numberOfSeats)
@@ -1297,13 +1303,18 @@ public void MakeReservation(Guid reservationId, int numberOfSeats)
 }
 ```
 
-The **RegistrationProcessManager** class handles the 
+> The **RegistrationProcessManager** class handles the 
 **ReservationAccepted** and **ReservationRejected** events. This 
 reservation is a temporary reservation for seats to give the user the 
 opportunity to make a payment. The process manager is responsible for releasing 
 the reservation when either the purchase is complete, or the reservation 
 timeout period expires. The following code sample shows how the process manager 
-handles these two messages. 
+handles these two messages.
+
+**RegistrationProcessManager** は **ReservationAccepted** と **ReservationRejected** というイベントを処理します。
+この時の予約は、ユーザが支払いを行う時のための席の一時的な予約です。
+プロセスマネージャは、購入完了時、もしくは予約のタイムアウト時に予約を解放する責任があります。
+次のサンプルコードでは、プロセスマネージャがこれらの2つのイベントを処理しています。
 
 ```Cs
 public void Handle(ReservationAccepted message)
@@ -1339,25 +1350,40 @@ public void Handle(ReservationRejected message)
 }
 ```
 
-If the reservation is accepted, the process manager starts a timer running by 
-sending an **ExpireOrder** command to itself, and sends a 
-**MarkOrderAsBooked** command to the **Order** aggregate. Otherwise, it 
-sends a **ReservationRejected** message back to the **Order** aggregate. 
+> If the reservation is accepted, the process manager starts a timer running by 
+> sending an **ExpireOrder** command to itself, and sends a 
+> **MarkOrderAsBooked** command to the **Order** aggregate. Otherwise, it 
+> sends a **ReservationRejected** message back to the **Order** aggregate. 
 
-The previous code sample shows how the process manager sends the 
-**ExpireOrder** command. The infrastructure is responsible for 
-holding the message in a queue for the delay of fifteen minutes. 
+予約が受け入れられた場合、プロセスマネージャは **ExpireOrder** コマンドを自身に送信するタイマーを開始し、
+**Order** 集約に **MarkOrderAsBooked** コマンドを送信します。
+それ以外の場合は、**Order** 集約に **ReservationRejected** メッセージを送信します。
 
-You can examine the code in the **Order**, 
-**SeatsAvailability**, and **RegistrationProcessManager** classes 
-to see how the other message handlers are implemented. They all follow 
-the same pattern: receive a message, perform some logic, and send a 
-message. 
+> The previous code sample shows how the process manager sends the 
+> **ExpireOrder** command. The infrastructure is responsible for 
+> holding the message in a queue for the delay of fifteen minutes. 
+
+前のサンプルコードでは、プロセスマネージャが **ExpireOrder** コマンドを送信する方法を示しています。
+インフラストラクチャが、15分後に送信するためにメッセージをキューに保持する責任を持ちます。
+
+> You can examine the code in the **Order**, 
+> **SeatsAvailability**, and **RegistrationProcessManager** classes 
+> to see how the other message handlers are implemented. They all follow 
+> the same pattern: receive a message, perform some logic, and send a 
+> message. 
+
+**Order**、**SeatsAvailability**、**RegistrationProcessManager** クラスのコードを見れば、
+他のメッセージハンドラの実装方法を確認できます。
+これらはすべて、メッセージを受け取り、いくつかのロジックを実行し、メッセージを送信するという同じパターンに従っています。
+
 
 > **JanaPersona:** The code samples shown in this chapter are from an
 > early version of the Conference Management System. The next chapter
 > shows how the design and implementation evolved as the team explored
 > the domain and learned more about the CQRS pattern.
+
+**Janaのペルソナ:** この章のコードサンプルは、カンファレンス管理システムの初期バージョンです。
+次の章では、チームがドメインを探求し、CQRSパターンについてより多くのことを学ぶことで、設計と実装の進化にどのように影響をもたらすかを示します。
 
 ### Infrastructure
 
